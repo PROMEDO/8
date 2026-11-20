@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import estoreHeroPromoImg from '../assets/images/estore_hero_promo_1795173985154.jpg';
+import estoreHeroPromoImg from '../assets/images/store_editorial_hero_1795175538078.jpg';
 import estorePhonesImg from '../assets/images/estore_cat_phones_1795173985624.jpg';
 import estoreLaptopsImg from '../assets/images/estore_cat_laptops_1795173985797.jpg';
 import estoreAudioImg from '../assets/images/estore_cat_audio_1795173986397.jpg';
@@ -18,7 +18,7 @@ import { DEFAULT_MEDIA_ASSETS } from '../utils/businessDefaults';
 export const ESTORE_HERO_PROMO_IMG = estoreHeroPromoImg;
 
 export const ESTORE_MEDIA_PRESETS: Array<{ id: string; name: string; url: string }> = [
-  { id: 'estore_preset_hero', name: 'واجهة عرض الأجهزة الرئيسية', url: estoreHeroPromoImg },
+  { id: 'estore_preset_hero', name: 'واجهة عرض المتجر الرئيسية', url: estoreHeroPromoImg },
   { id: 'estore_preset_phones', name: 'هواتف ذكية حديثة', url: estorePhonesImg },
   { id: 'estore_preset_laptops', name: 'لابتوبات وأجهزة لوحية', url: estoreLaptopsImg },
   { id: 'estore_preset_audio', name: 'سماعات صوتية عازلة للضوضاء', url: estoreAudioImg },
@@ -42,7 +42,6 @@ interface SeedProductDef {
   beforePriceIqd?: number;
   d: string;
   img: string;
-  prepTime?: string;
   allergens?: string;
   badge?: { type: 'red' | 'gold' | 'green' | 'accent'; text: string };
   sizes?: Array<{ n: string; pIqd: number }>;
@@ -98,7 +97,6 @@ const STORE_PRODUCTS_TEMPLATE: SeedProductDef[] = [
     beforePriceIqd: 1620000,
     d: 'شاشة LTPO OLED مقاس 6.9 إنش بتردد 120Hz، كاميرا ثلاثية بدقة 48MP، معالج رائد وشحن سريع.',
     img: estorePhonesImg,
-    prepTime: 'توصيل خلال 24 ساعة',
     allergens: 'ضمان رسمي لمدة 12 شهراً • يشمل الشاحن والكيبل الأصلي داخل العلبة',
     badge: { type: 'red', text: 'الأكثر مبيعاً' },
     sizes: [
@@ -119,7 +117,6 @@ const STORE_PRODUCTS_TEMPLATE: SeedProductDef[] = [
     beforePriceIqd: 1450000,
     d: 'هيكل تيتانيوم متين مع قلم S-Pen مدمج، كاميرا 200MP وتقريب بصري فائق وبطارية تدوم طوال اليوم.',
     img: estorePhonesImg,
-    prepTime: 'توصيل نفس اليوم',
     allergens: 'كفالة وكيل رسمية لمدة سنة • شريحتين + eSIM',
     badge: { type: 'accent', text: 'عرض خاص' },
     sizes: [
@@ -138,7 +135,6 @@ const STORE_PRODUCTS_TEMPLATE: SeedProductDef[] = [
     prIqd: 415000,
     d: 'شاشة AMOLED منحنية 120Hz، شحن خارق 120W يشحن البطارية بالكامل خلال 19 دقيقة، ومقاومة للماء.',
     img: estorePhonesImg,
-    prepTime: 'تجهيز فوري',
     allergens: 'ضمان استبدال فوري خلال 14 يوماً + صيانة سنة',
     badge: { type: 'green', text: 'جديد' },
     sizes: [
@@ -156,7 +152,6 @@ const STORE_PRODUCTS_TEMPLATE: SeedProductDef[] = [
     beforePriceIqd: 1710000,
     d: 'تصميم ألمنيوم فائق النحافة وخفيف الوزن ببطارية تدوم حتى 18 ساعة وشاشة Liquid Retina عالية الدقة.',
     img: estoreLaptopsImg,
-    prepTime: 'توصيل سريع',
     allergens: 'ضمان دولي معتمد لمدة سنة • كيبورد عربي / إنجليزي أصلي',
     badge: { type: 'red', text: 'الأكثر مبيعاً' },
     sizes: [
@@ -175,7 +170,6 @@ const STORE_PRODUCTS_TEMPLATE: SeedProductDef[] = [
     prIqd: 890000,
     d: 'شاشة عالية السطوع 120Hz، يدعم القلم الذكي والكيبورد المغناطيسي مع 4 سماعات ستيريو.',
     img: estoreLaptopsImg,
-    prepTime: 'تجهيز خلال ساعتين',
     allergens: 'ضمان الوكيل لمدة سنة كاملة',
     sizes: [
       { n: '128GB Wi-Fi', pIqd: 890000 },
@@ -196,7 +190,6 @@ const STORE_PRODUCTS_TEMPLATE: SeedProductDef[] = [
     beforePriceIqd: 340000,
     d: 'عزل ضوضاء نشط متعدد المستويات (ANC)، بطارية حتى 40 ساعة تشغيل متواصل وشحن سريع USB-C.',
     img: estoreAudioImg,
-    prepTime: 'شحن فوري',
     allergens: 'كفالة حقيقية لمدة 12 شهراً ضد العيوب المصنعية',
     badge: { type: 'accent', text: 'عرض خاص' },
     extras: [
@@ -211,7 +204,6 @@ const STORE_PRODUCTS_TEMPLATE: SeedProductDef[] = [
     beforePriceIqd: 175000,
     d: 'صوت محيطي مكاني، مقاومة للتعرق والماء IPX4، علبة شحن لاسلكي وتوافق تام مع جميع الهواتف.',
     img: estoreAudioImg,
-    prepTime: 'تجهيز فوري',
     allergens: 'ضمان 6 أشهر استبدال فوري',
     badge: { type: 'red', text: 'الأكثر مبيعاً' },
     extras: [
@@ -228,7 +220,6 @@ const STORE_PRODUCTS_TEMPLATE: SeedProductDef[] = [
     beforePriceIqd: 315000,
     d: 'شاشة AMOLED ساطعة جداً، قياس نبض القلب والأكسجين والرياضات المائية، ومكالمات بلوتوث واضحة.',
     img: estoreWatchesImg,
-    prepTime: 'توصيل نفس اليوم',
     allergens: 'ضمان سنة + سير إضافي هدية داخل العلبة',
     badge: { type: 'gold', text: 'كفالة رسمية' },
     extras: [
@@ -243,7 +234,6 @@ const STORE_PRODUCTS_TEMPLATE: SeedProductDef[] = [
     prIqd: 65000,
     d: 'وزن خفيف جداً، بطارية تدوم 14 يوماً بشحنة واحدة، وتتبع دقيق للنوم والسعرات وإشعارات الهاتف.',
     img: estoreWatchesImg,
-    prepTime: 'تجهيز فوري',
     allergens: 'ضمان 6 أشهر',
     badge: { type: 'green', text: 'جديد' },
     choices: ['أسود', 'كحلي', 'وردي رملي'],
@@ -257,7 +247,6 @@ const STORE_PRODUCTS_TEMPLATE: SeedProductDef[] = [
     beforePriceIqd: 58000,
     d: 'يشحن اللابتوب والهاتف والسماعة في وقت واحد بأمان حراري كامل وتقنية GaN المصغرة.',
     img: estoreChargersImg,
-    prepTime: 'تجهيز فوري',
     allergens: 'ضمان استبدال مباشر لمدة 18 شهراً',
     badge: { type: 'accent', text: 'عرض خاص' },
     extras: [
@@ -271,7 +260,6 @@ const STORE_PRODUCTS_TEMPLATE: SeedProductDef[] = [
     prIqd: 55000,
     d: 'التصاق مغناطيسي قوي بالهاتف، شحن لاسلكي 15W + منفذ USB-C سريع 20W وشاشة عرض نسبة الشحن.',
     img: estoreChargersImg,
-    prepTime: 'تجهيز فوري',
     allergens: 'ضمان سنة كاملة • آمن للسفر والطيران',
     choices: ['رمادي معدني', 'أزرق داكن'],
   },
@@ -281,7 +269,6 @@ const STORE_PRODUCTS_TEMPLATE: SeedProductDef[] = [
     prIqd: 18000,
     d: 'رأس ألمنيوم مضاد للقطع يتحمل أكثر من 25,000 ثنية مع شريحة ذكية لحماية البطارية.',
     img: estoreChargersImg,
-    prepTime: 'تجهيز فوري',
     allergens: 'ضمان 12 شهراً',
     choices: ['2 متر - أسود', '1.2 متر - رمادي'],
   },
@@ -294,7 +281,6 @@ const STORE_PRODUCTS_TEMPLATE: SeedProductDef[] = [
     beforePriceIqd: 135000,
     d: 'استجابة اهتزاز تفاعلية عالية الدقة، متوافق مع منصات الألعاب والحاسوب والهاتف عبر البلوتوث.',
     img: estoreGamingImg,
-    prepTime: 'توصيل سريع',
     allergens: 'نسخة أصلية بضمان 6 أشهر',
     badge: { type: 'red', text: 'الأكثر مبيعاً' },
     extras: [
@@ -308,7 +294,6 @@ const STORE_PRODUCTS_TEMPLATE: SeedProductDef[] = [
     prIqd: 68000,
     d: 'رؤية ليلية ملونة، تتبع تلقائي للحركة، تنبيه فوري للهاتف وصوت ثنائي الاتجاه مع فتحة ذاكرة.',
     img: estoreSmarthomeImg,
-    prepTime: 'تجهيز فوري',
     allergens: 'ضمان سنة • تطبيق سهل بالعربي والإنجليزي',
     badge: { type: 'green', text: 'جديد' },
     extras: [
@@ -408,7 +393,6 @@ export function seedStoreCatalogForAccount(
       allergens: tpl.allergens,
       available: true,
       published: true,
-      prepTime: tpl.prepTime,
       badges: tpl.badge ? [tpl.badge] : [],
       date: todayStr,
       o: existingItems.length + idx,

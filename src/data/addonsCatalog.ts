@@ -5,7 +5,7 @@
 
 import { Restaurant, RestaurantAddons, SupportedLanguage } from '../types';
 import { isStoreProject } from '../utils/terminology';
-import estoreHeroPromoImg from '../assets/images/estore_hero_promo_1795173985154.jpg';
+import estoreHeroPromoImg from '../assets/images/store_editorial_hero_1795175538078.jpg';
 
 export type AddonKey = keyof RestaurantAddons;
 export type AddonCategoryFilter = 'all' | 'marketing' | 'sales' | 'experience' | 'orders';

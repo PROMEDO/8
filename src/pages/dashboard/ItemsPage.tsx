@@ -521,18 +521,20 @@ export const ItemsPage: React.FC = () => {
                   />
                 </label>
 
-                <label className="f" style={{ marginBottom: 0 }}>
-                  {terms.isStore ? 'مدة التجهيز أو التوصيل (اختياري)' : 'المدة لتجهيز العنصر بالدقائق ( اختياري )'}
-                  <div style={{ position: 'relative' }}>
-                    <input
-                      type={terms.isStore ? 'text' : 'number'}
-                      value={formPrepTime}
-                      onChange={(e) => setFormPrepTime(e.target.value)}
-                      placeholder={terms.isStore ? 'مثال: توصيل خلال 24 ساعة' : 'مثال: 15'}
-                      style={themedInputStyle}
-                    />
-                  </div>
-                </label>
+                {!terms.isStore && (
+                  <label className="f" style={{ marginBottom: 0 }}>
+                    المدة لتجهيز العنصر بالدقائق ( اختياري )
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        type="number"
+                        value={formPrepTime}
+                        onChange={(e) => setFormPrepTime(e.target.value)}
+                        placeholder="مثال: 15"
+                        style={themedInputStyle}
+                      />
+                    </div>
+                  </label>
+                )}
 
                 {/* Pricing Section */}
                 <div

@@ -349,7 +349,7 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
   );
   const currency = String(rest?.currency || 'د.ع').trim();
   const brandColor = isEstore
-    ? '#f15a29'
+    ? '#222222'
     : isCustomPreset
     ? (rest?.color || activeTheme.brand)
     : hasKnownPreset
@@ -377,34 +377,34 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
       : `color-mix(in srgb, ${customBgColor} 80%, #ffffff)`
     : activeTheme.surface;
   const effectiveSurfaceSoft = isEstore
-    ? '#f5f7f9'
+    ? '#f8f8f8'
     : isCustomPreset && rest?.bgColor
     ? isLightMenu
       ? `color-mix(in srgb, ${customBgColor} 88%, #0f172a)`
       : `color-mix(in srgb, ${customBgColor} 88%, #ffffff)`
     : activeTheme.surfaceSoft;
   const effectiveInk = isEstore
-    ? '#001c38'
+    ? '#222222'
     : isCustomPreset && rest?.bgColor
     ? isLightMenu
       ? '#0f172a'
       : '#f8fafc'
     : activeTheme.text;
   const effectiveMuted = isEstore
-    ? '#667483'
+    ? '#7e7e7e'
     : isCustomPreset && rest?.bgColor
     ? isLightMenu
       ? '#475569'
       : '#94a3b8'
     : activeTheme.muted;
   const effectiveLine = isEstore
-    ? '#e5e9ed'
+    ? '#eaeaea'
     : isCustomPreset && rest?.bgColor
     ? isLightMenu
       ? 'rgba(15, 23, 42, 0.14)'
       : 'rgba(255, 255, 255, 0.15)'
     : activeTheme.line;
-  const accentText = isEstore ? '#f15a29' : isLightMenu ? brandColor : getReadableAccent(brandColor);
+  const accentText = isEstore ? '#222222' : isLightMenu ? brandColor : getReadableAccent(brandColor);
   const brandInk = isEstore ? '#ffffff' : getContrastInk(brandColor);
 
   const rawAddons = rest?.addons || {};
@@ -3328,9 +3328,9 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
                     .map((b, i) => renderBadge(b, i))}
               </div>
 
-              {(activeProduct.prepTime || activeProduct.calories || selectedSize?.cal) && (
+              {((!isEstore && activeProduct.prepTime) || activeProduct.calories || selectedSize?.cal) && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '10px', fontSize: '12.5px', color: 'var(--pm-muted)' }}>
-                  {activeProduct.prepTime && (
+                  {!isEstore && activeProduct.prepTime && (
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                       <Clock size={14} /> {activeProduct.prepTime}
                     </span>

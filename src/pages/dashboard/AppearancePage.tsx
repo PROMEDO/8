@@ -77,7 +77,7 @@ export const AppearancePage: React.FC = () => {
                 <span className="mp-estore-appearance-ico">
                   <Store size={18} />
                 </span>
-                <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--brand-ink, #f15a29)' }}>
+                <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--brand-ink, #e2e8f0)' }}>
                   مظهر المتجر الإلكتروني الموحد
                 </span>
               </div>
@@ -85,24 +85,24 @@ export const AppearancePage: React.FC = () => {
                 واجهة متجر احترافية موحّدة لـ {restName || 'متجرك'}
               </h2>
               <p style={{ margin: '0 0 14px', fontSize: '13px', color: 'var(--muted)', lineHeight: 1.7 }}>
-                تم تفعيل تصميم المتاجر الإلكتروني الموحد تلقائياً لمتجرك (هيدر أبيض ونظيف مع بحث فوري، ألوان الكحلي الداكن والبرتقالي، شبكة تسوق حسب الفئة، بطاقات منتجات مع نسب الخصم وسلة جانبية ذكية). يتم عرض جميع الأقسام والمنتجات والأسعار والهوية الخاصة بك مباشرة دون أي إعدادات معقدة.
+                تم تفعيل تصميم المتجر العصري باللونين الأبيض والفحمي تلقائياً لمتجرك: هيدر احترافي بقائمة منسدلة للأقسام، سلايدر عرض رئيسي، صفحات متكاملة (الرئيسية، كل المنتجات، الكولكشنات، الأكثر مبيعاً، وصلنا حديثاً، التخفيضات، المفضلات، من نحن، سياساتنا)، بطاقات عرض ألبومية أنيقة مع حفظ المفضلات والسلة الذكية.
               </p>
 
               <div className="mp-estore-swatches" aria-label="لوحة ألوان المتجر">
                 <span className="mp-estore-swatch">
-                  <i style={{ background: '#001c38' }} />
-                  <span>كحلي رئيسي</span>
+                  <i style={{ background: '#222222' }} />
+                  <span>أسود فحمي أنيق</span>
                 </span>
                 <span className="mp-estore-swatch">
-                  <i style={{ background: '#f15a29' }} />
-                  <span>برتقالي المتجر</span>
+                  <i style={{ background: '#242424' }} />
+                  <span>شريط الإعلانات الداكن</span>
                 </span>
                 <span className="mp-estore-swatch">
                   <i style={{ background: '#ffffff', border: '1px solid #cbd5e1' }} />
-                  <span>خلفية بيضاء نظيفة</span>
+                  <span>خلفية بيضاء نقية</span>
                 </span>
                 <span className="mp-estore-swatch">
-                  <i style={{ background: '#f5f7f9', border: '1px solid #cbd5e1' }} />
+                  <i style={{ background: '#f8f8f8', border: '1px solid #cbd5e1' }} />
                   <span>أسطح العرض</span>
                 </span>
               </div>

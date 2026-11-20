@@ -2309,11 +2309,7 @@ function useDashboardController({
       availabilitySchedule: sanitizeAvailabilityScheduleForSave(formSchedule),
       noDelivery: formNoDelivery || undefined,
       noPickup: formNoPickup || undefined,
-      prepTime: formPrepTime
-        ? terms.isStore && !/^\d+$/.test(formPrepTime.trim())
-          ? formPrepTime.trim()
-          : `${formPrepTime} دقيقة`
-        : undefined,
+      prepTime: !terms.isStore && formPrepTime ? `${formPrepTime} دقيقة` : undefined,
       badges: formBadgeText.trim() ? [{ type: formBadgeType, text: formBadgeText.trim() }] : [],
       date: existing?.date || new Date().toLocaleDateString('ar-IQ-u-nu-latn'),
       o: existing ? existing.o : allItems.length,
@@ -2508,11 +2504,7 @@ function useDashboardController({
     const nextHasChoices = existingChoices.length > 0;
     const nextChoices = existingChoices.length > 0 ? existingChoices : [''];
     const nextMaxChoices = Math.max(1, Number(item.maxChoices) || 1);
-    const nextPrep = item.prepTime
-      ? terms.isStore
-        ? String(item.prepTime)
-        : String(item.prepTime).replace(/\D/g, '')
-      : '';
+    const nextPrep = !terms.isStore && item.prepTime ? String(item.prepTime).replace(/\D/g, '') : '';
     const nextBadgeText = item.badges?.[0]?.text || '';
     const nextBadgeType = (item.badges?.[0]?.type as 'red' | 'gold' | 'green' | 'accent') || 'accent';
     const nextAllergens = Array.isArray(item.allergens) ? item.allergens.join('، ') : item.allergens || '';
