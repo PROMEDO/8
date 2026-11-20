@@ -11,6 +11,7 @@ import {
   Edit,
   Image as ImageIcon,
   Plus,
+  Sparkles,
   Trash2,
   X,
 } from 'lucide-react';
@@ -32,6 +33,7 @@ export const CategoriesPage: React.FC = () => {
   const prefersReducedMotion = useReducedMotion();
   const {
     resolvedPlan,
+    terms,
     allCategories,
     showCatModal,
     setShowCatModal,
@@ -47,6 +49,7 @@ export const CategoriesPage: React.FC = () => {
     handleDeleteCategory,
     handleReorderCategories,
     handleSaveCategorySchedule,
+    handleSeedStoreCatalog,
     mediaLibraryItems,
     uploadImagesToLibrary,
     removeMediaLibraryItem,
@@ -192,14 +195,35 @@ export const CategoriesPage: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
       >
-        <button
-          type="button"
-          onClick={openNewCategoryModal}
-          className={`${atCatLimit ? 'btn s' : 'btn p'} mp-items-add-btn`}
-        >
-          <span>{atCatLimit ? 'الحد مكتمل 🔒' : 'إضافة قسم'}</span>
-          <Plus size={17} />
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={openNewCategoryModal}
+            className={`${atCatLimit ? 'btn s' : 'btn p'} mp-items-add-btn`}
+          >
+            <span>{atCatLimit ? 'الحد مكتمل 🔒' : terms.isStore ? 'إضافة قسم منتجات' : 'إضافة قسم'}</span>
+            <Plus size={17} />
+          </button>
+
+          {terms.isStore && (
+            <button
+              type="button"
+              onClick={() => handleSeedStoreCatalog('append_missing')}
+              className="btn s"
+              style={{
+                minHeight: '40px',
+                borderRadius: '12px',
+                fontWeight: 800,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              <Sparkles size={15} style={{ color: 'var(--brand-ink, #34D399)' }} />
+              <span>استيراد أقسام ومنتجات جاهزة</span>
+            </button>
+          )}
+        </div>
 
         <div
           className={`mp-items-count-box ${atCatLimit ? 'is-limit' : ''}`}
@@ -277,8 +301,24 @@ export const CategoriesPage: React.FC = () => {
                     type="button"
                     role="switch"
                     aria-checked={isCatVisible}
-                    aria-label={isCatVisible ? 'إخفاء القسم من المنيو' : 'إظهار القسم في المنيو'}
-                    title={isCatVisible ? 'ظاهر في المنيو — اضغط للإيقاف' : 'مخفي من المنيو — اضغط للتشغيل'}
+                    aria-label={
+                      isCatVisible
+                        ? terms.isStore
+                          ? 'إخفاء القسم من المتجر'
+                          : 'إخفاء القسم من المنيو'
+                        : terms.isStore
+                        ? 'إظهار القسم في المتجر'
+                        : 'إظهار القسم في المنيو'
+                    }
+                    title={
+                      isCatVisible
+                        ? terms.isStore
+                          ? 'ظاهر في المتجر — اضغط للإيقاف'
+                          : 'ظاهر في المنيو — اضغط للإيقاف'
+                        : terms.isStore
+                        ? 'مخفي من المتجر — اضغط للتشغيل'
+                        : 'مخفي من المنيو — اضغط للتشغيل'
+                    }
                     onClick={() => handleToggleCategoryVisibility(c)}
                     className={`ios-switch ${isCatVisible ? 'on' : 'off'}`}
                   >
@@ -404,7 +444,7 @@ export const CategoriesPage: React.FC = () => {
                   type="text"
                   value={catNameInput}
                   onChange={(e) => setCatNameInput(e.target.value)}
-                  placeholder="ادخل اسم القسم"
+                  placeholder={terms.isStore ? 'مثال: الهواتف الذكية / السماعات / الإكسسوارات' : 'ادخل اسم القسم'}
                   style={{ ...themedInputStyle, borderRadius: '12px', marginTop: '6px' }}
                   required
                 />
@@ -519,7 +559,7 @@ export const CategoriesPage: React.FC = () => {
                       justifyContent: 'center',
                     }}
                   >
-                    إضافة قسم
+                    {terms.isStore ? 'إضافة قسم للمتجر' : 'إضافة قسم'}
                   </button>
                 )}
               </div>

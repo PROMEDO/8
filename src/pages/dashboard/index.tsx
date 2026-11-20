@@ -45,6 +45,7 @@ const DashboardShell: React.FC = () => {
     resolvedPlan,
     purchaseModalPlan,
     setPurchaseModalPlan,
+    terms,
     customTabLabel,
     supportWaHref,
     publicPath,
@@ -109,6 +110,8 @@ const DashboardShell: React.FC = () => {
   const activeNavTab = navTabs.find((t) => t.id === activeTab);
   const activeTabTitle = activeNavTab
     ? customTabLabel(activeNavTab.id, activeNavTab.label)
+    : terms.isStore
+    ? 'لوحة تحكم المتجر'
     : 'لوحة التحكم';
   useEffect(() => {
     document.title = `${activeTabTitle} | ${rest.n || 'منيو بلس'}`;
@@ -454,11 +457,11 @@ const DashboardShell: React.FC = () => {
               type="button"
               className="mp-dash-topbar-btn"
               onClick={openShareModal}
-              aria-label="مشاركة المنيو"
-              title="مشاركة المنيو"
+              aria-label={terms.isStore ? 'مشاركة المتجر' : 'مشاركة المنيو'}
+              title={terms.isStore ? 'مشاركة المتجر' : 'مشاركة المنيو'}
             >
               <Share2 size={18} />
-              <span className="mp-dash-topbar-label">مشاركة المنيو</span>
+              <span className="mp-dash-topbar-label">{terms.isStore ? 'مشاركة المتجر' : 'مشاركة المنيو'}</span>
             </button>
 
             <button
@@ -468,11 +471,11 @@ const DashboardShell: React.FC = () => {
                 void flushPendingAppearanceSave();
                 onNavigate(publicPath);
               }}
-              aria-label="معاينة المنيو"
-              title="معاينة المنيو"
+              aria-label={terms.isStore ? 'معاينة المتجر' : 'معاينة المنيو'}
+              title={terms.isStore ? 'معاينة المتجر' : 'معاينة المنيو'}
             >
               <Eye size={18} />
-              <span className="mp-dash-topbar-label">معاينة المنيو</span>
+              <span className="mp-dash-topbar-label">{terms.isStore ? 'معاينة المتجر' : 'معاينة المنيو'}</span>
             </button>
           </div>
         </header>
@@ -529,6 +532,7 @@ const DashboardShell: React.FC = () => {
         menuName={rest.n}
         menuUrl={liveMenuUrl}
         description={rest.tagline}
+        isStore={terms.isStore}
         onCopied={showToast}
       />
 

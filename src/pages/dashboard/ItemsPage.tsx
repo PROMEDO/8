@@ -15,6 +15,7 @@ import {
   Edit,
   Image as ImageIcon,
   Plus,
+  ShieldCheck,
   Sparkles,
   Trash2,
   X,
@@ -38,6 +39,7 @@ export const ItemsPage: React.FC = () => {
   const prefersReducedMotion = useReducedMotion();
   const {
     resolvedPlan,
+    terms,
     customTabLabel,
     currency,
     allCategories,
@@ -110,6 +112,7 @@ export const ItemsPage: React.FC = () => {
     handleToggleItemVisibility,
     handleReorderItems,
     handleSaveItemSchedule,
+    handleSeedStoreCatalog,
     mediaLibraryItems,
     uploadImagesToLibrary,
     removeMediaLibraryItem,
@@ -311,7 +314,7 @@ export const ItemsPage: React.FC = () => {
             }}
           >
             <ChevronRight size={15} />
-            <span>العودة للعناصر</span>
+            <span>{terms.isStore ? 'العودة للمنتجات' : 'العودة للعناصر'}</span>
           </button>
         </div>
 
@@ -426,7 +429,7 @@ export const ItemsPage: React.FC = () => {
                     <>
                       <img
                         src={formImage}
-                        alt={formName || 'صورة العنصر'}
+                        alt={formName || terms.itemSingular}
                         referrerPolicy="no-referrer"
                         style={{
                           width: '86px',
@@ -462,7 +465,7 @@ export const ItemsPage: React.FC = () => {
                     <>
                       <ImageIcon size={30} strokeWidth={1.7} style={{ color: 'var(--muted)' }} />
                       <div style={{ fontSize: '14.5px', fontWeight: 800, color: 'var(--ink)' }}>
-                        اضف صورة للعنصر (اختياري)
+                        {terms.isStore ? 'اضف صورة للمنتج (اختياري)' : 'اضف صورة للعنصر (اختياري)'}
                       </div>
                       <div dir="auto" style={{ fontSize: '12px', color: 'var(--muted)', lineHeight: 1.5 }}>
                         مقاس الصورة المفضل 180 × 180، نقبل jpg, png, jpeg
@@ -472,19 +475,23 @@ export const ItemsPage: React.FC = () => {
                 </div>
 
                 <label className="f" style={{ marginBottom: 0 }}>
-                  اسم العنصر *
+                  {terms.isStore ? 'اسم المنتج *' : 'اسم العنصر *'}
                   <input
                     type="text"
                     value={formName}
                     onChange={(e) => setFormName(e.target.value)}
-                    placeholder="مثال: ريزو، كاب سماش برجر، بيبسي..."
+                    placeholder={
+                      terms.isStore
+                        ? 'مثال: سماعة رأس لاسلكية، هاتف ذكي...'
+                        : 'مثال: ريزو، كاب سماش برجر، بيبسي...'
+                    }
                     style={themedInputStyle}
                     required
                   />
                 </label>
 
                 <label className="f" style={{ marginBottom: 0 }}>
-                  قسم العنصر *
+                  {terms.isStore ? 'قسم المنتج *' : 'قسم العنصر *'}
                   <select
                     value={formCat}
                     onChange={(e) => setFormCat(e.target.value)}
@@ -500,24 +507,28 @@ export const ItemsPage: React.FC = () => {
                 </label>
 
                 <label className="f" style={{ marginBottom: 0 }}>
-                  وصف العنصر ( الوصف والمكونات )
+                  {terms.isStore ? 'وصف المنتج (المواصفات والمميزات)' : 'وصف العنصر ( الوصف والمكونات )'}
                   <textarea
                     value={formDesc}
                     onChange={(e) => setFormDesc(e.target.value)}
-                    placeholder="اكتب مكونات الوجبة أو وصف المنتج بشكل واضح للزبون..."
+                    placeholder={
+                      terms.isStore
+                        ? 'اكتب مواصفات المنتج ومميزاته بشكل واضح للمشتري...'
+                        : 'اكتب مكونات الوجبة أو وصف المنتج بشكل واضح للزبون...'
+                    }
                     rows={4}
                     style={themedInputStyle}
                   />
                 </label>
 
                 <label className="f" style={{ marginBottom: 0 }}>
-                  المدة لتجهيز العنصر بالدقائق ( اختياري )
+                  {terms.isStore ? 'مدة التجهيز أو التوصيل (اختياري)' : 'المدة لتجهيز العنصر بالدقائق ( اختياري )'}
                   <div style={{ position: 'relative' }}>
                     <input
-                      type="number"
+                      type={terms.isStore ? 'text' : 'number'}
                       value={formPrepTime}
                       onChange={(e) => setFormPrepTime(e.target.value)}
-                      placeholder="مثال: 15"
+                      placeholder={terms.isStore ? 'مثال: توصيل خلال 24 ساعة' : 'مثال: 15'}
                       style={themedInputStyle}
                     />
                   </div>
@@ -545,10 +556,12 @@ export const ItemsPage: React.FC = () => {
                   >
                     <div>
                       <div style={{ fontSize: '14.5px', fontWeight: 800, color: 'var(--ink)' }}>
-                        أسعار متغيرة (أكثر من حجم)
+                        {terms.isStore ? 'خيارات وأسعار متعددة (سعات / أحجام)' : 'أسعار متغيرة (أكثر من حجم)'}
                       </div>
                       <div style={{ fontSize: '12px', color: 'var(--muted)' }}>
-                        فعّل هذا الخيار لتحديد عدة أحجام وبجوار كل حجم سعره الخاص
+                        {terms.isStore
+                          ? 'فعّل هذا الخيار لتحديد عدة سعات أو إصدارات وبجوار كل خيار سعره الخاص'
+                          : 'فعّل هذا الخيار لتحديد عدة أحجام وبجوار كل حجم سعره الخاص'}
                       </div>
                     </div>
 
@@ -556,15 +569,22 @@ export const ItemsPage: React.FC = () => {
                       type="button"
                       role="switch"
                       aria-checked={hasVariableSizes}
-                      aria-label="تفعيل أسعار متغيرة بأكثر من حجم"
+                      aria-label={terms.isStore ? 'تفعيل خيارات وأسعار متعددة' : 'تفعيل أسعار متغيرة بأكثر من حجم'}
                       onClick={() => {
                         setHasVariableSizes((prev) => {
                           const next = !prev;
                           if (next && formSizes.length === 0) {
-                            setFormSizes([
-                              { n: 'سنجل', p: formPrice !== '' ? Number(formPrice) : '' },
-                              { n: 'دبل', p: '' },
-                            ]);
+                            setFormSizes(
+                              terms.isStore
+                                ? [
+                                    { n: '128GB', p: formPrice !== '' ? Number(formPrice) : '' },
+                                    { n: '256GB', p: '' },
+                                  ]
+                                : [
+                                    { n: 'سنجل', p: formPrice !== '' ? Number(formPrice) : '' },
+                                    { n: 'دبل', p: '' },
+                                  ]
+                            );
                           }
                           return next;
                         });
@@ -631,7 +651,11 @@ export const ItemsPage: React.FC = () => {
                                 const val = e.target.value;
                                 setFormSizes((prev) => prev.map((row, i) => (i === idx ? { ...row, n: val } : row)));
                               }}
-                              placeholder={`اسم الحجم #${idx + 1} (مثال: سنجل / دبل / كبير)`}
+                              placeholder={
+                                terms.isStore
+                                  ? `اسم الخيار #${idx + 1} (مثال: 128GB / 256GB / برو)`
+                                  : `اسم الحجم #${idx + 1} (مثال: سنجل / دبل / كبير)`
+                              }
                               style={{ ...themedInputStyle, background: 'color-mix(in srgb, var(--surface) 40%, transparent)' }}
                             />
                             <input
@@ -646,7 +670,7 @@ export const ItemsPage: React.FC = () => {
                             />
                             <button
                               type="button"
-                              aria-label="حذف الحجم"
+                              aria-label={terms.isStore ? 'حذف الخيار' : 'حذف الحجم'}
                               onClick={() => {
                                 if (formSizes.length === 1) {
                                   setFormSizes([{ n: '', p: '' }]);
@@ -680,38 +704,73 @@ export const ItemsPage: React.FC = () => {
                           style={{ fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                         >
                           <Plus size={15} />
-                          <span>إضافة حجم جديد</span>
+                          <span>{terms.isStore ? 'إضافة خيار جديد' : 'إضافة حجم جديد'}</span>
                         </button>
 
                         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                          <button
-                            type="button"
-                            className="btn s"
-                            onClick={() =>
-                              setFormSizes([
-                                { n: 'سنجل', p: formSizes[0]?.p || 6000 },
-                                { n: 'دبل', p: 8500 },
-                                { n: 'تربل', p: 11000 },
-                              ])
-                            }
-                            style={{ fontSize: '11.5px', color: 'var(--muted)' }}
-                          >
-                            قالب: سنجل / دبل / تربل
-                          </button>
-                          <button
-                            type="button"
-                            className="btn s"
-                            onClick={() =>
-                              setFormSizes([
-                                { n: 'صغير', p: formSizes[0]?.p || 5000 },
-                                { n: 'وسط', p: 7000 },
-                                { n: 'كبير', p: 9000 },
-                              ])
-                            }
-                            style={{ fontSize: '11.5px', color: 'var(--muted)' }}
-                          >
-                            قالب: صغير / وسط / كبير
-                          </button>
+                          {terms.isStore ? (
+                            <>
+                              <button
+                                type="button"
+                                className="btn s"
+                                onClick={() =>
+                                  setFormSizes([
+                                    { n: '128GB', p: formSizes[0]?.p || 500000 },
+                                    { n: '256GB', p: 650000 },
+                                    { n: '512GB', p: 800000 },
+                                  ])
+                                }
+                                style={{ fontSize: '11.5px', color: 'var(--muted)' }}
+                              >
+                                قالب: 128GB / 256GB / 512GB
+                              </button>
+                              <button
+                                type="button"
+                                className="btn s"
+                                onClick={() =>
+                                  setFormSizes([
+                                    { n: 'قياسي', p: formSizes[0]?.p || 100000 },
+                                    { n: 'بلس', p: 150000 },
+                                    { n: 'برو', p: 200000 },
+                                  ])
+                                }
+                                style={{ fontSize: '11.5px', color: 'var(--muted)' }}
+                              >
+                                قالب: قياسي / بلس / برو
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                type="button"
+                                className="btn s"
+                                onClick={() =>
+                                  setFormSizes([
+                                    { n: 'سنجل', p: formSizes[0]?.p || 6000 },
+                                    { n: 'دبل', p: 8500 },
+                                    { n: 'تربل', p: 11000 },
+                                  ])
+                                }
+                                style={{ fontSize: '11.5px', color: 'var(--muted)' }}
+                              >
+                                قالب: سنجل / دبل / تربل
+                              </button>
+                              <button
+                                type="button"
+                                className="btn s"
+                                onClick={() =>
+                                  setFormSizes([
+                                    { n: 'صغير', p: formSizes[0]?.p || 5000 },
+                                    { n: 'وسط', p: 7000 },
+                                    { n: 'كبير', p: 9000 },
+                                  ])
+                                }
+                                style={{ fontSize: '11.5px', color: 'var(--muted)' }}
+                              >
+                                قالب: صغير / وسط / كبير
+                              </button>
+                            </>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -737,10 +796,12 @@ export const ItemsPage: React.FC = () => {
                 >
                   <div>
                     <h3 style={{ margin: '0 0 4px', fontSize: '17px', fontWeight: 900, color: 'var(--ink)' }}>
-                      إضافات العنصر (مدفوعة)
+                      {terms.isStore ? 'ملحقات وإضافات المنتج (مدفوعة)' : 'إضافات العنصر (مدفوعة)'}
                     </h3>
                     <p style={{ margin: 0, fontSize: '13px', color: 'var(--muted)' }}>
-                      {`أضف صوصات أو إضافات مدفوعة (مثال: صوص جبن بسعر 500 ${currency}) يحددها الزبون مع الطبق.`}
+                      {terms.isStore
+                        ? `أضف ملحقات أو خدمات مدفوعة (مثال: كفر حماية بسعر 10,000 ${currency}) يحددها المشتري مع المنتج.`
+                        : `أضف صوصات أو إضافات مدفوعة (مثال: صوص جبن بسعر 500 ${currency}) يحددها الزبون مع الطبق.`}
                     </p>
                   </div>
 
@@ -781,8 +842,8 @@ export const ItemsPage: React.FC = () => {
                       textAlign: 'center',
                     }}
                   >
-                    <p style={{ margin: '0 0 12px', color: 'var(--muted)', fontSize: '14px', fontWeight: 600 }}>
-                      الإضافات غير مفعلة لهذا العنصر حالياً.
+                      <p style={{ margin: '0 0 12px', color: 'var(--muted)', fontSize: '14px', fontWeight: 600 }}>
+                      {terms.isStore ? 'الإضافات غير مفعلة لهذا المنتج حالياً.' : 'الإضافات غير مفعلة لهذا العنصر حالياً.'}
                     </p>
                     <button
                       type="button"
@@ -820,7 +881,7 @@ export const ItemsPage: React.FC = () => {
                               const val = e.target.value;
                               setFormExtras((prev) => prev.map((row, i) => (i === idx ? { ...row, n: val } : row)));
                             }}
-                            placeholder="اسم الإضافة (مثال: صوص جبن)"
+                            placeholder={terms.isStore ? 'اسم الملحق (مثال: كفر حماية)' : 'اسم الإضافة (مثال: صوص جبن)'}
                             style={{ ...themedInputStyle, background: 'color-mix(in srgb, var(--surface) 40%, transparent)' }}
                           />
                           <input
@@ -830,7 +891,7 @@ export const ItemsPage: React.FC = () => {
                               const val = e.target.value === '' ? '' : Number(e.target.value);
                               setFormExtras((prev) => prev.map((row, i) => (i === idx ? { ...row, p: val } : row)));
                             }}
-                            placeholder={`السعر (${currency}) مثال: 500`}
+                            placeholder={`السعر (${currency}) مثال: ${terms.isStore ? '10000' : '500'}`}
                             style={{ ...themedInputStyle, background: 'color-mix(in srgb, var(--surface) 40%, transparent)' }}
                           />
                           <button
@@ -873,12 +934,20 @@ export const ItemsPage: React.FC = () => {
                       </button>
 
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                        {[
-                          { n: 'صوص جبن', p: 500 },
-                          { n: 'شريحة جبن شيدر', p: 1000 },
-                          { n: 'فلفل هلابينو', p: 500 },
-                          { n: 'بيكون مدخن', p: 2000 },
-                        ].map((preset) => (
+                        {(terms.isStore
+                          ? [
+                              { n: 'كفر حماية', p: 10000 },
+                              { n: 'لاصق زجاجي للشاشة', p: 8000 },
+                              { n: 'تغليف هدية فاخر', p: 5000 },
+                              { n: 'كفالة استبدال إضافية', p: 15000 },
+                            ]
+                          : [
+                              { n: 'صوص جبن', p: 500 },
+                              { n: 'شريحة جبن شيدر', p: 1000 },
+                              { n: 'فلفل هلابينو', p: 500 },
+                              { n: 'بيكون مدخن', p: 2000 },
+                            ]
+                        ).map((preset) => (
                           <button
                             key={preset.n}
                             type="button"
@@ -919,10 +988,14 @@ export const ItemsPage: React.FC = () => {
                 >
                   <div>
                     <h3 style={{ margin: '0 0 4px', fontSize: '17px', fontWeight: 900, color: 'var(--ink)' }}>
-                      اختيارات العنصر (مجانية بدون سعر)
+                      {terms.isStore
+                        ? 'اختيارات المنتج المجانية (ألوان / تغليف)'
+                        : 'اختيارات العنصر (مجانية بدون سعر)'}
                     </h3>
                     <p style={{ margin: 0, fontSize: '13px', color: 'var(--muted)' }}>
-                      خيارات مجانية يحددها الزبون مع الطبق مثل نوع الخبز أو مستوى الحرارة بدون سعر إضافي.
+                      {terms.isStore
+                        ? 'خيارات مجانية يحددها المشتري مع المنتج مثل اللون أو نوع التغليف بدون سعر إضافي.'
+                        : 'خيارات مجانية يحددها الزبون مع الطبق مثل نوع الخبز أو مستوى الحرارة بدون سعر إضافي.'}
                     </p>
                   </div>
 
@@ -964,7 +1037,9 @@ export const ItemsPage: React.FC = () => {
                     }}
                   >
                     <p style={{ margin: '0 0 12px', color: 'var(--muted)', fontSize: '14px', fontWeight: 600 }}>
-                      الاختيارات المجانية غير مفعلة لهذا العنصر حالياً.
+                      {terms.isStore
+                        ? 'الاختيارات المجانية غير مفعلة لهذا المنتج حالياً.'
+                        : 'الاختيارات المجانية غير مفعلة لهذا العنصر حالياً.'}
                     </p>
                     <button
                       type="button"
@@ -1014,7 +1089,11 @@ export const ItemsPage: React.FC = () => {
                               const val = e.target.value;
                               setFormChoices((prev) => prev.map((row, i) => (i === idx ? val : row)));
                             }}
-                            placeholder={`اسم الخيار المجاني #${idx + 1} (مثال: خبز بريوش ذهبي / سبايسي حار)`}
+                            placeholder={
+                              terms.isStore
+                                ? `اسم الخيار المجاني #${idx + 1} (مثال: اللون: أسود / تغليف هدية)`
+                                : `اسم الخيار المجاني #${idx + 1} (مثال: خبز بريوش ذهبي / سبايسي حار)`
+                            }
                             style={{ ...themedInputStyle, background: 'color-mix(in srgb, var(--surface) 40%, transparent)' }}
                           />
                           <button
@@ -1057,22 +1136,45 @@ export const ItemsPage: React.FC = () => {
                       </button>
 
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                        <button
-                          type="button"
-                          className="btn s"
-                          style={{ fontSize: '11.5px', color: 'var(--muted)' }}
-                          onClick={() => setFormChoices(['خبز بريوش ذهبي', 'خبز بطاطا طري'])}
-                        >
-                          قالب: نوع الخبز
-                        </button>
-                        <button
-                          type="button"
-                          className="btn s"
-                          style={{ fontSize: '11.5px', color: 'var(--muted)' }}
-                          onClick={() => setFormChoices(['عادي (بارد)', 'سبايسي حار 🔥'])}
-                        >
-                          قالب: عادي / سبايسي
-                        </button>
+                        {terms.isStore ? (
+                          <>
+                            <button
+                              type="button"
+                              className="btn s"
+                              style={{ fontSize: '11.5px', color: 'var(--muted)' }}
+                              onClick={() => setFormChoices(['اللون: أسود', 'اللون: فضي'])}
+                            >
+                              قالب: اللون: أسود / فضي
+                            </button>
+                            <button
+                              type="button"
+                              className="btn s"
+                              style={{ fontSize: '11.5px', color: 'var(--muted)' }}
+                              onClick={() => setFormChoices(['تغليف قياسي', 'تغليف هدية'])}
+                            >
+                              قالب: تغليف قياسي / هدية
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              className="btn s"
+                              style={{ fontSize: '11.5px', color: 'var(--muted)' }}
+                              onClick={() => setFormChoices(['خبز بريوش ذهبي', 'خبز بطاطا طري'])}
+                            >
+                              قالب: نوع الخبز
+                            </button>
+                            <button
+                              type="button"
+                              className="btn s"
+                              style={{ fontSize: '11.5px', color: 'var(--muted)' }}
+                              onClick={() => setFormChoices(['عادي (بارد)', 'سبايسي حار 🔥'])}
+                            >
+                              قالب: عادي / سبايسي
+                            </button>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1099,10 +1201,12 @@ export const ItemsPage: React.FC = () => {
                 >
                   <div>
                     <div style={{ fontSize: '14.5px', fontWeight: 800, color: 'var(--ink)' }}>
-                      ظهور العنصر في المنيو
+                      {terms.isStore ? 'ظهور المنتج في المتجر' : 'ظهور العنصر في المنيو'}
                     </div>
                     <div style={{ fontSize: '12px', color: 'var(--muted)' }}>
-                      عند الإطفاء يختفي العنصر مؤقتاً من قائمة الزبائن دون حذفه
+                      {terms.isStore
+                        ? 'عند الإطفاء يختفي المنتج مؤقتاً من واجهة المتجر دون حذفه'
+                        : 'عند الإطفاء يختفي العنصر مؤقتاً من قائمة الزبائن دون حذفه'}
                     </div>
                   </div>
                   <button
@@ -1118,14 +1222,24 @@ export const ItemsPage: React.FC = () => {
 
                 <label className="f" style={{ marginBottom: 0 }}>
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                    <AlertTriangle size={14} style={{ color: '#f59e0b' }} />
-                    <span>مسببات الحساسية (اختياري)</span>
+                    {terms.isStore ? (
+                      <ShieldCheck size={14} style={{ color: '#10b981' }} />
+                    ) : (
+                      <AlertTriangle size={14} style={{ color: '#f59e0b' }} />
+                    )}
+                    <span>
+                      {terms.isStore ? 'المواصفات الفنية والضمان (اختياري)' : 'مسببات الحساسية (اختياري)'}
+                    </span>
                   </span>
                   <textarea
                     rows={3}
                     value={formAllergens}
                     onChange={(e) => setFormAllergens(e.target.value)}
-                    placeholder="مثال: يحتوي على الجلوتين، الألبان، السمسم..."
+                    placeholder={
+                      terms.isStore
+                        ? 'مثال: ضمان رسمي لمدة 12 شهراً • يشمل الشاحن والكيبل...'
+                        : 'مثال: يحتوي على الجلوتين، الألبان، السمسم...'
+                    }
                     style={themedInputStyle}
                   />
                 </label>
@@ -1196,13 +1310,22 @@ export const ItemsPage: React.FC = () => {
                     اختر شارة جاهزة أو اكتب نصاً مخصصاً
                   </div>
                   <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                    {[
-                      { text: 'الأكثر طلباً', type: 'red' as const },
-                      { text: 'جديد', type: 'green' as const },
-                      { text: 'توقيع الشيف', type: 'gold' as const },
-                      { text: 'مميز', type: 'accent' as const },
-                      { text: 'مقرمش 🔥', type: 'red' as const },
-                    ].map((b) => (
+                    {(terms.isStore
+                      ? [
+                          { text: 'الأكثر مبيعاً', type: 'red' as const },
+                          { text: 'عرض خاص', type: 'gold' as const },
+                          { text: 'جديد', type: 'green' as const },
+                          { text: 'كفالة رسمية', type: 'accent' as const },
+                          { text: 'نسخة أصلية ✨', type: 'gold' as const },
+                        ]
+                      : [
+                          { text: 'الأكثر طلباً', type: 'red' as const },
+                          { text: 'جديد', type: 'green' as const },
+                          { text: 'توقيع الشيف', type: 'gold' as const },
+                          { text: 'مميز', type: 'accent' as const },
+                          { text: 'مقرمش 🔥', type: 'red' as const },
+                        ]
+                    ).map((b) => (
                       <button
                         key={b.text}
                         type="button"
@@ -1282,7 +1405,7 @@ export const ItemsPage: React.FC = () => {
                   justifyContent: 'center',
                 }}
               >
-                إضافة عنصر
+                {terms.isStore ? 'إضافة منتج' : 'إضافة عنصر'}
               </button>
             </div>
           )}
@@ -1315,20 +1438,41 @@ export const ItemsPage: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
       >
-        <button
-          type="button"
-          onClick={openNewItemEditor}
-          className={`${atItemLimit ? 'btn s' : 'btn p'} mp-items-add-btn`}
-        >
-          <span>{atItemLimit ? 'الحد مكتمل 🔒' : 'إضافة عنصر'}</span>
-          <Plus size={17} />
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={openNewItemEditor}
+            className={`${atItemLimit ? 'btn s' : 'btn p'} mp-items-add-btn`}
+          >
+            <span>{atItemLimit ? 'الحد مكتمل 🔒' : terms.isStore ? 'إضافة منتج' : 'إضافة عنصر'}</span>
+            <Plus size={17} />
+          </button>
+
+          {terms.isStore && (
+            <button
+              type="button"
+              onClick={() => handleSeedStoreCatalog('append_missing')}
+              className="btn s"
+              style={{
+                minHeight: '40px',
+                borderRadius: '12px',
+                fontWeight: 800,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              <Sparkles size={15} style={{ color: 'var(--brand-ink, #34D399)' }} />
+              <span>تعبئة منتجات متجر جاهزة</span>
+            </button>
+          )}
+        </div>
 
         <div
           className={`mp-items-count-box ${atItemLimit ? 'is-limit' : ''}`}
-          aria-label={`عدد العناصر ${itemLimitText}`}
+          aria-label={`${terms.isStore ? 'عدد المنتجات' : 'عدد العناصر'} ${itemLimitText}`}
         >
-          <span className="mp-items-count-label">عدد العناصر</span>
+          <span className="mp-items-count-label">{terms.isStore ? 'عدد المنتجات' : 'عدد العناصر'}</span>
           <span className="mp-items-count-divider" aria-hidden="true" />
           <span dir="ltr" className="mp-items-count-num tabular-nums">
             {itemLimitText}
@@ -1440,8 +1584,8 @@ export const ItemsPage: React.FC = () => {
                     type="button"
                     className="mp-item-drag-btn"
                     onPointerDown={(e) => startHandleDrag(e, item.id)}
-                    title="اسحب لتحريك العنصر للأعلى أو للأسفل"
-                    aria-label={`تحريك عنصر ${item.n}`}
+                    title={terms.isStore ? 'اسحب لتحريك المنتج للأعلى أو للأسفل' : 'اسحب لتحريك العنصر للأعلى أو للأسفل'}
+                    aria-label={terms.isStore ? `تحريك منتج ${item.n}` : `تحريك عنصر ${item.n}`}
                     style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
                   >
                     <SixDotDragHandle />
@@ -1548,8 +1692,24 @@ export const ItemsPage: React.FC = () => {
                     type="button"
                     role="switch"
                     aria-checked={isItemVisible}
-                    aria-label={isItemVisible ? 'إطفاء وإخفاء العنصر' : 'تشغيل وإظهار العنصر'}
-                    title={isItemVisible ? 'ظاهر في المنيو — اضغط للإطفاء' : 'مخفي من المنيو — اضغط للتشغيل'}
+                    aria-label={
+                      isItemVisible
+                        ? terms.isStore
+                          ? 'إطفاء وإخفاء المنتج'
+                          : 'إطفاء وإخفاء العنصر'
+                        : terms.isStore
+                        ? 'تشغيل وإظهار المنتج'
+                        : 'تشغيل وإظهار العنصر'
+                    }
+                    title={
+                      isItemVisible
+                        ? terms.isStore
+                          ? 'ظاهر في المتجر — اضغط للإطفاء'
+                          : 'ظاهر في المنيو — اضغط للإطفاء'
+                        : terms.isStore
+                        ? 'مخفي من المتجر — اضغط للتشغيل'
+                        : 'مخفي من المنيو — اضغط للتشغيل'
+                    }
                     onClick={() => handleToggleItemVisibility(item)}
                     className={`ios-switch ${isItemVisible ? 'on' : 'off'}`}
                   >
@@ -1565,8 +1725,8 @@ export const ItemsPage: React.FC = () => {
                     type="button"
                     className={`mp-item-icon-btn ${hasSchedule ? 'is-scheduled' : ''}`}
                     onClick={() => openScheduleModal(item)}
-                    title="تعيين وقت توفر العنصر"
-                    aria-label="تعيين وقت توفر العنصر"
+                    title={terms.isStore ? 'تعيين وقت توفر المنتج' : 'تعيين وقت توفر العنصر'}
+                    aria-label={terms.isStore ? 'تعيين وقت توفر المنتج' : 'تعيين وقت توفر العنصر'}
                   >
                     <Clock size={15} />
                   </button>
@@ -1575,7 +1735,7 @@ export const ItemsPage: React.FC = () => {
                     type="button"
                     className="mp-item-icon-btn"
                     onClick={() => handleEditItem(item)}
-                    title="تعديل العنصر"
+                    title={terms.isStore ? 'تعديل المنتج' : 'تعديل العنصر'}
                     aria-label={`تعديل ${item.n}`}
                   >
                     <Edit size={15} />
@@ -1585,7 +1745,7 @@ export const ItemsPage: React.FC = () => {
                     type="button"
                     className="mp-item-icon-btn"
                     onClick={() => handleDeleteItem(item)}
-                    title="حذف العنصر"
+                    title={terms.isStore ? 'حذف المنتج' : 'حذف العنصر'}
                     aria-label={`حذف ${item.n}`}
                   >
                     <Trash2 size={15} />
@@ -1677,7 +1837,7 @@ export const ItemsPage: React.FC = () => {
                     handleSaveItemSchedule(scheduleModalItem, next);
                   }
                 }}
-                targetLabel="العنصر"
+                targetLabel={terms.isStore ? 'المنتج' : 'العنصر'}
                 inputStyle={themedInputStyle}
                 flat
               />
@@ -1730,7 +1890,7 @@ export const ItemsPage: React.FC = () => {
             <motion.div
               role="dialog"
               aria-modal="true"
-              aria-label="إضافة عناصر سريعة بالجملة"
+              aria-label={terms.isStore ? 'إضافة منتجات سريعة بالجملة' : 'إضافة عناصر سريعة بالجملة'}
               onClick={(e) => e.stopPropagation()}
               initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.96, y: 8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -1747,7 +1907,7 @@ export const ItemsPage: React.FC = () => {
             >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 900, color: 'var(--brand-ink, #34D399)', margin: 0 }}>
-                إضافة عناصر سريعة بالجملة ✨
+                {terms.isStore ? 'إضافة منتجات سريعة بالجملة ✨' : 'إضافة عناصر سريعة بالجملة ✨'}
               </h3>
               <button
                 type="button"
@@ -1759,15 +1919,20 @@ export const ItemsPage: React.FC = () => {
             </div>
 
             <p style={{ fontSize: '13.5px', color: 'var(--muted)', lineHeight: 1.6, margin: '0 0 14px' }}>
-              أدخل كل عنصر في سطر منفصل بصيغة: <b>الاسم - السعر - الوصف</b>
+              {terms.isStore ? 'أدخل كل منتج في سطر منفصل بصيغة: ' : 'أدخل كل عنصر في سطر منفصل بصيغة: '}
+              <b>الاسم - السعر - الوصف</b>
             </p>
 
             <label className="f">
-              قائمة العناصر
+              {terms.isStore ? 'قائمة المنتجات' : 'قائمة العناصر'}
               <textarea
                 value={batchLinesInput}
                 onChange={(e) => setBatchLinesInput(e.target.value)}
-                placeholder={'برجر دبل تشيز - 8500 - لحم طازج مع جبنة شيدر\nبيتزا مارجريتا - 9000 - عجينة إيطالية وموتزاريلا'}
+                placeholder={
+                  terms.isStore
+                    ? 'سماعة بلوتوث لاسلكية - 35000 - صوت نقي وعزل ضوضاء\nشاحن سريع 65 واط - 25000 - منفذ Type-C PD'
+                    : 'برجر دبل تشيز - 8500 - لحم طازج مع جبنة شيدر\nبيتزا مارجريتا - 9000 - عجينة إيطالية وموتزاريلا'
+                }
                 rows={5}
                 style={themedInputStyle}
               />
@@ -1778,7 +1943,7 @@ export const ItemsPage: React.FC = () => {
                 إلغاء
               </button>
               <button type="button" className="btn p" onClick={handleBatchAddItems} style={{ fontWeight: 800 }}>
-                إضافة العناصر للمنيو
+                {terms.isStore ? 'إضافة المنتجات للمتجر' : 'إضافة العناصر للمنيو'}
               </button>
             </div>
             </motion.div>

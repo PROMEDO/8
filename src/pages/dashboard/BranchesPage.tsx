@@ -28,6 +28,7 @@ export const BranchesPage: React.FC = () => {
     mainRest,
     branchesList,
     resolvedPlan,
+    terms,
     site,
     switchActiveBranch,
     createBranch,
@@ -189,7 +190,7 @@ export const BranchesPage: React.FC = () => {
                         )}
                       </div>
                       <div style={{ fontSize: '12.5px', color: 'var(--muted)', marginTop: '3px' }}>
-                        {mainCatsCount} أقسام • {mainItemsCount} عنصر • {mainRest.address || 'العنوان الرئيسي'}
+                        {mainCatsCount} أقسام • {mainItemsCount} {terms.isStore ? 'منتج' : 'عنصر'} • {mainRest.address || 'العنوان الرئيسي'}
                       </div>
                     </div>
                   </div>
@@ -218,7 +219,7 @@ export const BranchesPage: React.FC = () => {
                         style={{ textDecoration: 'none' }}
                       >
                         <ExternalLink size={14} />
-                        <span>فتح المنيو</span>
+                        <span>{terms.isStore ? 'فتح المتجر' : 'فتح المنيو'}</span>
                       </a>
                     ) : (
                       <button
@@ -227,7 +228,7 @@ export const BranchesPage: React.FC = () => {
                         className="btn s"
                       >
                         <ExternalLink size={14} />
-                        <span>فتح المنيو</span>
+                        <span>{terms.isStore ? 'فتح المتجر' : 'فتح المنيو'}</span>
                       </button>
                     )}
                   </div>
@@ -271,7 +272,7 @@ export const BranchesPage: React.FC = () => {
                       )}
                     </div>
                     <div style={{ fontSize: '12.5px', color: 'var(--muted)', marginTop: '3px' }}>
-                      {branchCats} أقسام • {branchItems} عنصر • 📞 {branch.ph || mainRest.ph}
+                      {branchCats} أقسام • {branchItems} {terms.isStore ? 'منتج' : 'عنصر'} • 📞 {branch.ph || mainRest.ph}
                       {branch.address ? ` • 📍 ${branch.address}` : ''}
                     </div>
                   </div>
@@ -284,17 +285,17 @@ export const BranchesPage: React.FC = () => {
                         className="btn p s"
                         style={{ fontWeight: 800 }}
                       >
-                        إدارة منيو هذا الفرع
+                        {terms.isStore ? 'إدارة متجر هذا الفرع' : 'إدارة منيو هذا الفرع'}
                       </button>
                     )}
                     <button
                       type="button"
                       onClick={() => cloneMainMenuToBranch(branch.id, branchLabel)}
                       className="btn s"
-                      title="استيراد نسخة من منيو الفرع الرئيسي"
+                      title={terms.isStore ? 'استيراد نسخة من منتجات الفرع الرئيسي' : 'استيراد نسخة من منيو الفرع الرئيسي'}
                     >
                       <RefreshCw size={14} />
-                      <span>نسخ منيو الرئيسي هنا</span>
+                      <span>{terms.isStore ? 'نسخ منتجات الرئيسي هنا' : 'نسخ منيو الرئيسي هنا'}</span>
                     </button>
                     <button type="button" onClick={() => copyLink(branchUrl)} className="btn s">
                       <Copy size={14} />
@@ -408,14 +409,14 @@ export const BranchesPage: React.FC = () => {
               </div>
 
               <label className="f" style={{ margin: 0 }}>
-                اسم الفرع * (مثال: فرع المنصور)
+                {terms.isStore ? 'اسم الفرع * (مثال: معرض المنصور)' : 'اسم الفرع * (مثال: فرع المنصور)'}
                 <input
                   type="text"
                   required
                   autoFocus
                   value={newBranchName}
                   onChange={(e) => setNewBranchName(e.target.value)}
-                  placeholder="مثال: فرع المنصور"
+                  placeholder={terms.isStore ? 'مثال: معرض المنصور' : 'مثال: فرع المنصور'}
                   style={themedInputStyle}
                 />
               </label>
@@ -449,7 +450,11 @@ export const BranchesPage: React.FC = () => {
                   checked={cloneOnCreate}
                   onChange={(e) => setCloneOnCreate(e.target.checked)}
                 />
-                <span>نسخ منيو الفرع الرئيسي (الأقسام والأصناف) إلى هذا الفرع تلقائياً</span>
+                <span>
+                  {terms.isStore
+                    ? 'نسخ أقسام ومنتجات الفرع الرئيسي (الأقسام والمنتجات) إلى هذا الفرع تلقائياً'
+                    : 'نسخ منيو الفرع الرئيسي (الأقسام والأصناف) إلى هذا الفرع تلقائياً'}
+                </span>
               </label>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '4px' }}>

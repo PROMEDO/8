@@ -8,11 +8,14 @@ import {
   BarChart3,
   GitBranch,
   Home,
+  Package,
   Palette,
   QrCode,
   Settings,
   ShoppingBag,
+  ShoppingCart,
   Sparkles,
+  Store,
   Tags,
   UtensilsCrossed,
 } from 'lucide-react';
@@ -57,12 +60,16 @@ import {
 import { getDashboardTabPath } from '../../utils/router';
 import { AjaxDialogState, INITIAL_AJAX_DIALOG } from '../../components/AjaxConfirmModal';
 import {
-  ADDON_CATALOG,
   AddonCategoryFilter,
   AddonKey,
   AddonMetaItem,
   buildDefaultAddons,
+  getContextualAddonCatalog,
 } from '../../data/addonsCatalog';
+import {
+  ESTORE_HERO_PROMO_IMG,
+  seedStoreCatalogForAccount,
+} from '../../data/storeSeedCatalog';
 import {
   MENU_SHAPES,
   getAddonRequiredPlanLabel,
@@ -374,6 +381,19 @@ export const NAV_TABS = [
   { id: 'set' as const, label: 'الإعدادات', Icon: Settings },
 ];
 
+export const STORE_NAV_TABS = [
+  { id: 'home' as const, label: 'رئيسية المتجر', Icon: Store },
+  { id: 'cats' as const, label: 'أقسام المتجر', Icon: Tags },
+  { id: 'menu' as const, label: 'المنتجات والأسعار', Icon: Package },
+  { id: 'orders' as const, label: 'طلبات المتجر', Icon: ShoppingCart },
+  { id: 'stats' as const, label: 'تقارير المبيعات', Icon: BarChart3 },
+  { id: 'appearance' as const, label: 'واجهة المتجر', Icon: Palette },
+  { id: 'branches' as const, label: 'الفروع والمعارض', Icon: GitBranch },
+  { id: 'addons' as const, label: 'إضافات المتجر', Icon: Sparkles },
+  { id: 'qr' as const, label: 'باركود المتجر والرابط', Icon: QrCode },
+  { id: 'set' as const, label: 'إعدادات المتجر', Icon: Settings },
+];
+
 export const surfaceCardStyle: React.CSSProperties = {
   background: 'color-mix(in srgb, var(--surface) 40%, transparent)',
   backdropFilter: 'blur(14px) saturate(1.25)',
@@ -506,6 +526,7 @@ function useDashboardController({
   );
 
   const customTabLabel = (id: string, fallback: string) => {
+    if (terms.isStore) return fallback;
     const labels = site?.dashboardTabLabels;
     const direct =
       labels?.[id]?.trim() ||
@@ -747,15 +768,19 @@ function useDashboardController({
 
   const cloneMainMenuToBranch = (branchRid: string, branchLabel: string) => {
     triggerAjaxConfirm(
-      `نسخ منيو الفرع الرئيسي إلى ${branchLabel}`,
-      'سيتم استبدال أقسام ومنتجات هذا الفرع بنسخة مطابقة كاملة من الفرع الرئيسي (يمكنك تعديلها بحرية بعد النسخ دون التأثير على الفرع الرئيسي).',
+      terms.isStore ? `نسخ منتجات الفرع الرئيسي إلى ${branchLabel}` : `نسخ منيو الفرع الرئيسي إلى ${branchLabel}`,
+      terms.isStore
+        ? 'سيتم استبدال أقسام ومنتجات هذا المعرض بنسخة مطابقة كاملة من المتجر الرئيسي (يمكنك تعديلها بحرية بعد النسخ دون التأثير على الرئيسي).'
+        : 'سيتم استبدال أقسام ومنتجات هذا الفرع بنسخة مطابقة كاملة من الفرع الرئيسي (يمكنك تعديلها بحرية بعد النسخ دون التأثير على الفرع الرئيسي).',
       'warn',
       'تأكيد النسخ',
       () => {
         cloneCatsAndItemsFromMain(branchRid);
         onRefresh();
       },
-      `تم نسخ منيو الفرع الرئيسي إلى "${branchLabel}" بنجاح ✓`
+      terms.isStore
+        ? `تم نسخ منتجات المتجر الرئيسي إلى "${branchLabel}" بنجاح ✓`
+        : `تم نسخ منيو الفرع الرئيسي إلى "${branchLabel}" بنجاح ✓`
     );
   };
 
@@ -1428,7 +1453,8 @@ function useDashboardController({
 
   const handleToggleAddon = (addonMeta: AddonMetaItem) => {
     const localizedTitle =
-      ADDON_CATALOG.find((a) => a.key === addonMeta.key)?.title || addonMeta.title;
+      getContextualAddonCatalog(terms.isStore).find((a) => a.key === addonMeta.key)?.title ||
+      addonMeta.title;
     if (!isAddonAllowedForPlan(addonMeta.key, resolvedPlan)) {
       const reqLabel = getAddonRequiredPlanLabel(addonMeta.key);
       showToast(`هذه الميزة متاحة في ${reqLabel} 🔒`);
@@ -1491,7 +1517,10 @@ function useDashboardController({
       const linkedDish = itemId ? allItems.find((it) => it.id === itemId) : undefined;
       let title = String(draftSnapshot.title || '').trim();
       if (shouldEnable && mode === 'dish' && !itemId) {
-        return { ok: false, error: 'يرجى اختيار الطبق المطلوب للعرض الخاص.' };
+        return {
+          ok: false,
+          error: terms.isStore ? 'يرجى اختيار المنتج المطلوب للعرض الخاص.' : 'يرجى اختيار الطبق المطلوب للعرض الخاص.',
+        };
       }
       if (!title && linkedDish?.n) {
         title = linkedDish.n;
@@ -1607,12 +1636,18 @@ function useDashboardController({
     }
 
     if (keySnapshot === 'moodMealFinder') {
-      draftSnapshot.title = String(draftSnapshot.title || 'مستشار المزاج والوجبة الذكي').trim();
-      draftSnapshot.buttonText = String(draftSnapshot.buttonText || 'اختر لي وجبة حسب مزاجي ✨').trim();
+      draftSnapshot.title = String(
+        draftSnapshot.title || (terms.isStore ? 'مستشار التسوق الذكي — اختر الأنسب لاحتياجك!' : 'مستشار المزاج والوجبة الذكي')
+      ).trim();
+      draftSnapshot.buttonText = String(
+        draftSnapshot.buttonText || (terms.isStore ? 'رشّح لي أفضل المنتجات ✨' : 'اختر لي وجبة حسب مزاجي ✨')
+      ).trim();
     }
 
     if (keySnapshot === 'curbsidePickupCar') {
-      draftSnapshot.instructions = String(draftSnapshot.instructions || 'اركن سيارتك أمام البوابة واضغط وصلت').trim();
+      draftSnapshot.instructions = String(
+        draftSnapshot.instructions || (terms.isStore ? 'اركن سيارتك أمام المتجر واضغط وصلت' : 'اركن سيارتك أمام البوابة واضغط وصلت')
+      ).trim();
       draftSnapshot.allowArrivedPing = draftSnapshot.allowArrivedPing !== false;
     }
 
@@ -1704,7 +1739,7 @@ function useDashboardController({
   const handleSaveAddonEdit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingAddonKey || addonSaving) return;
-    const meta = ADDON_CATALOG.find((a) => a.key === editingAddonKey);
+    const meta = getContextualAddonCatalog(terms.isStore).find((a) => a.key === editingAddonKey);
     const keySnapshot = editingAddonKey;
     const latestAddons = addonsStateRef.current;
     const currentExisting = (latestAddons[keySnapshot] || {}) as Record<string, any>;
@@ -2198,10 +2233,17 @@ function useDashboardController({
     setFormNoPickup(false);
     setFormSchedule(normalizeAvailabilitySchedule(DEFAULT_AVAILABILITY_SCHEDULE));
     setHasVariableSizes(false);
-    setFormSizes([
-      { n: 'سنجل', p: '' },
-      { n: 'دبل', p: '' },
-    ]);
+    setFormSizes(
+      terms.isStore
+        ? [
+            { n: '128GB', p: '' },
+            { n: '256GB', p: '' },
+          ]
+        : [
+            { n: 'سنجل', p: '' },
+            { n: 'دبل', p: '' },
+          ]
+    );
     setHasExtras(false);
     setFormExtras([{ n: '', p: '' }]);
     setHasChoices(false);
@@ -2254,7 +2296,9 @@ function useDashboardController({
       d: formDesc.trim(),
       img:
         formImage.trim() ||
-        'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80',
+        (terms.isStore
+          ? allCategories.find((c) => c.id === catToUse)?.img || ESTORE_HERO_PROMO_IMG
+          : 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80'),
       sizes: cleanSizes.length > 0 ? cleanSizes : [],
       extras: cleanExtras.length > 0 ? cleanExtras : [],
       choices: cleanChoices.length > 0 ? cleanChoices : [],
@@ -2265,7 +2309,11 @@ function useDashboardController({
       availabilitySchedule: sanitizeAvailabilityScheduleForSave(formSchedule),
       noDelivery: formNoDelivery || undefined,
       noPickup: formNoPickup || undefined,
-      prepTime: formPrepTime ? `${formPrepTime} دقيقة` : undefined,
+      prepTime: formPrepTime
+        ? terms.isStore && !/^\d+$/.test(formPrepTime.trim())
+          ? formPrepTime.trim()
+          : `${formPrepTime} دقيقة`
+        : undefined,
       badges: formBadgeText.trim() ? [{ type: formBadgeType, text: formBadgeText.trim() }] : [],
       date: existing?.date || new Date().toLocaleDateString('ar-IQ-u-nu-latn'),
       o: existing ? existing.o : allItems.length,
@@ -2279,12 +2327,12 @@ function useDashboardController({
       return;
     }
     if (!editingItemId && resolvedPlan.maxItems !== -1 && allItems.length >= resolvedPlan.maxItems) {
-      showToast(`وصلت للحد الأقصى للعناصر في باقتك (${resolvedPlan.maxItems} عنصر)`);
+      showToast(`وصلت للحد الأقصى ${terms.isStore ? 'للمنتجات' : 'للعناصر'} في باقتك (${resolvedPlan.maxItems})`);
       return;
     }
     if (!formName.trim()) {
       setItemEditorTab('info');
-      showToast('يرجى إدخال اسم العنصر أولاً');
+      showToast(`يرجى إدخال اسم ${terms.isStore ? 'المنتج' : 'العنصر'} أولاً`);
       return;
     }
 
@@ -2359,8 +2407,10 @@ function useDashboardController({
 
   const handleDeleteItem = (item: MenuItem) => {
     triggerAjaxConfirm(
-      'تأكيد حذف العنصر',
-      `هل أنت متأكد من حذف العنصر "${item.n}" نهائياً من القائمة؟`,
+      terms.isStore ? 'تأكيد حذف المنتج' : 'تأكيد حذف العنصر',
+      terms.isStore
+        ? `هل أنت متأكد من حذف المنتج "${item.n}" نهائياً من المتجر؟`
+        : `هل أنت متأكد من حذف العنصر "${item.n}" نهائياً من القائمة؟`,
       'danger',
       'تأكيد الحذف',
       () => {
@@ -2382,19 +2432,21 @@ function useDashboardController({
     }
     if (resolvedPlan.maxItems !== -1 && allItems.length + lines.length > resolvedPlan.maxItems) {
       const remaining = Math.max(0, resolvedPlan.maxItems - allItems.length);
-      showToast(`يتجاوز العدد المتاح في باقتك (${remaining} عنصر متبقي من أصل ${resolvedPlan.maxItems})`);
+      showToast(`يتجاوز العدد المتاح في باقتك (${remaining} متبقي من أصل ${resolvedPlan.maxItems})`);
       return;
     }
     const targetCat = allCategories[0]?.id || 'default_cat';
     triggerAjaxConfirm(
-      'إضافة مجموعة عناصر',
-      `هل أنت متأكد من إضافة ${lines.length} عنصر إلى المنيو دفعة واحدة؟`,
+      terms.isStore ? 'إضافة مجموعة منتجات' : 'إضافة مجموعة عناصر',
+      terms.isStore
+        ? `هل أنت متأكد من إضافة ${lines.length} منتج إلى المتجر دفعة واحدة؟`
+        : `هل أنت متأكد من إضافة ${lines.length} عنصر إلى المنيو دفعة واحدة؟`,
       'info',
       'تأكيد الإضافة',
       () => {
         lines.forEach((line, idx) => {
           const parts = line.split(/[-–|,]/).map((s) => s.trim());
-          const name = parts[0] || `طبق ${idx + 1}`;
+          const name = parts[0] || `${terms.isStore ? 'منتج' : 'طبق'} ${idx + 1}`;
           const priceNum = Number(String(parts[1] || '5000').replace(/\D/g, '')) || 5000;
           const desc = parts[2] || '';
           const itemId = 'item_' + uid();
@@ -2414,7 +2466,7 @@ function useDashboardController({
         setShowBatchModal(false);
         onRefresh();
       },
-      `تمت إضافة ${lines.length} عنصر بنجاح`
+      `تمت إضافة ${lines.length} ${terms.isStore ? 'منتج' : 'عنصر'} بنجاح`
     );
   };
 
@@ -2442,6 +2494,11 @@ function useDashboardController({
     const nextSizes =
       existingSizes.length > 0
         ? existingSizes
+        : terms.isStore
+        ? [
+            { n: '128GB', p: '' as number | '' },
+            { n: '256GB', p: '' as number | '' },
+          ]
         : [
             { n: 'سنجل', p: '' as number | '' },
             { n: 'دبل', p: '' as number | '' },
@@ -2451,7 +2508,11 @@ function useDashboardController({
     const nextHasChoices = existingChoices.length > 0;
     const nextChoices = existingChoices.length > 0 ? existingChoices : [''];
     const nextMaxChoices = Math.max(1, Number(item.maxChoices) || 1);
-    const nextPrep = item.prepTime ? String(item.prepTime).replace(/\D/g, '') : '';
+    const nextPrep = item.prepTime
+      ? terms.isStore
+        ? String(item.prepTime)
+        : String(item.prepTime).replace(/\D/g, '')
+      : '';
     const nextBadgeText = item.badges?.[0]?.text || '';
     const nextBadgeType = (item.badges?.[0]?.type as 'red' | 'gold' | 'green' | 'accent') || 'accent';
     const nextAllergens = Array.isArray(item.allergens) ? item.allergens.join('، ') : item.allergens || '';
@@ -3025,6 +3086,19 @@ function useDashboardController({
     };
   }, [currentSettingsDigest]);
 
+  const handleSeedStoreCatalog = (mode: 'if_empty' | 'append_missing' = 'append_missing') => {
+    const res = seedStoreCatalogForAccount(rid, restCurrency || 'د.ع', mode);
+    if (!coverUrlInput || coverUrlInput === DEFAULT_MEDIA_ASSETS.restaurant.banner) {
+      setCoverUrlInput(ESTORE_HERO_PROMO_IMG);
+    }
+    onRefresh();
+    if (res.catsAdded > 0 || res.itemsAdded > 0) {
+      showToast(`تم تجهيز ${res.catsAdded} أقسام و ${res.itemsAdded} منتج متجر بنجاح ✓`);
+    } else if (mode === 'append_missing') {
+      showToast('جميع أقسام ومنتجات المتجر الافتراضية مضافة بالفعل ✓');
+    }
+  };
+
   const setRestProjectType = (nextType: 'restaurant' | 'store') => {
     setRestProjectTypeRaw(nextType);
     if (nextType === 'store') {
@@ -3043,6 +3117,18 @@ function useDashboardController({
       setMenuThemeShape('estore');
       setRestColor('#f15a29');
       setRestBgColor('');
+      if (!coverUrlInput || coverUrlInput === DEFAULT_MEDIA_ASSETS.restaurant.banner) {
+        setCoverUrlInput(ESTORE_HERO_PROMO_IMG);
+      }
+      if (allItems.length === 0) {
+        const seeded = seedStoreCatalogForAccount(rid, restCurrency || 'د.ع', 'if_empty');
+        onRefresh();
+        if (seeded.itemsAdded > 0) {
+          showToast('تم تفعيل وضع المتجر وتجهيز الأقسام والمنتجات الافتراضية ✓');
+          return;
+        }
+      }
+      showToast('تم تفعيل وضع المتجر وتحديث الواجهة والقوائم ✓');
     } else if (
       appearanceDraftRef.current.themePreset === 'estore' ||
       appearanceDraftRef.current.themeShape === 'estore'
@@ -3240,7 +3326,7 @@ function useDashboardController({
 
   return {
     session,
-    navTabs: NAV_TABS,
+    navTabs: terms.isStore ? STORE_NAV_TABS : NAV_TABS,
     layoutDefinitions: LAYOUT_DEFINITIONS,
     weekDaysOrder: WEEK_DAYS_ORDER,
     site,
@@ -3464,6 +3550,7 @@ function useDashboardController({
     handleCompleteAllOrders,
     restProjectType,
     setRestProjectType,
+    handleSeedStoreCatalog,
     restName,
     setRestName,
     restTagline,

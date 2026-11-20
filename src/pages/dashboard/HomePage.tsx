@@ -26,6 +26,7 @@ export const HomePage: React.FC = () => {
     allItems,
     setActiveTab,
     openSettingsSection,
+    handleSeedStoreCatalog,
     activeRid,
     mainRid,
   } = useDashboard();
@@ -106,7 +107,11 @@ export const HomePage: React.FC = () => {
       id: 'itemImages',
       done: hasItemsPhotos,
       label: hasItemsPhotos
-        ? 'تمت إضافة صور واضحة للأصناف'
+        ? terms.isStore
+          ? 'تمت إضافة صور واضحة للمنتجات'
+          : 'تمت إضافة صور واضحة للأصناف'
+        : terms.isStore
+        ? `أضف صوراً للمنتجات (${Math.min(itemsWithPhotoCount, 3)}/3)`
         : `أضف صوراً للأصناف (${Math.min(itemsWithPhotoCount, 3)}/3)`,
       targetTab: 'menu',
     },
@@ -155,7 +160,11 @@ export const HomePage: React.FC = () => {
       id: 'telegram',
       done: hasTelegramConnected,
       label: hasTelegramConnected
-        ? 'إشعارات بوت تيليجرام مفعّلة'
+        ? terms.isStore
+          ? 'إشعارات بوت تيليجرام لطلبات المتجر مفعّلة'
+          : 'إشعارات بوت تيليجرام مفعّلة'
+        : terms.isStore
+        ? 'ربط بوت تيليجرام لتنبيهات طلبات المتجر'
         : 'ربط بوت تيليجرام لتنبيهات الطلبات',
       targetTab: 'set',
       settingsSection: 'telegram',
@@ -186,7 +195,11 @@ export const HomePage: React.FC = () => {
       id: 'slug',
       done: hasCustomSlugConfigured,
       label: hasCustomSlugConfigured
-        ? 'الرابط الفرعي المخصص مفعّل'
+        ? terms.isStore
+          ? 'رابط المتجر المخصص مفعّل'
+          : 'الرابط الفرعي المخصص مفعّل'
+        : terms.isStore
+        ? 'حجز رابط المتجر المخصص'
         : 'حجز الرابط الفرعي المخصص',
       targetTab: 'set',
       settingsSection: 'links',
@@ -255,7 +268,7 @@ export const HomePage: React.FC = () => {
 
             <h2 className="mp-home-section-title">
               <Ml7Text
-                text="خطوات استكمال جاهزية المنيو 💡"
+                text={terms.isStore ? 'خطوات استكمال جاهزية المتجر 🛍️' : 'خطوات استكمال جاهزية المنيو 💡'}
                 mode="mount"
                 delay={0.08}
                 stagger={0.12}
@@ -269,8 +282,24 @@ export const HomePage: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
             >
-              أكمل الخطوات التالية ليكون منيوك جاهزاً لاستقبال الطلبات بأفضل شكل:
+              {terms.isStore
+                ? 'أكمل الخطوات التالية ليكون متجرك جاهزاً لاستقبال الطلبات بأفضل شكل:'
+                : 'أكمل الخطوات التالية ليكون منيوك جاهزاً لاستقبال الطلبات بأفضل شكل:'}
             </motion.p>
+
+            {terms.isStore && allItems.length === 0 && (
+              <div style={{ marginTop: '12px' }}>
+                <button
+                  type="button"
+                  className="btn p s"
+                  onClick={() => handleSeedStoreCatalog('append_missing')}
+                  style={{ fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <Sparkles size={15} />
+                  <span>إضافة أقسام ومنتجات المتجر الافتراضية</span>
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="mp-home-tips-box" dir="rtl">

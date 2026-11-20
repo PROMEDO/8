@@ -16,7 +16,7 @@ import {
   Volume2,
   X,
 } from 'lucide-react';
-import { ADDON_CATALOG } from '../../data/addonsCatalog';
+import { getContextualAddonCatalog } from '../../data/addonsCatalog';
 import { formatNumber } from '../../utils/storage';
 import { MediaLibraryModal } from '../../components/MediaLibraryModal';
 import {
@@ -63,9 +63,10 @@ export const AddonsPage: React.FC = () => {
     uploadImagesToLibrary,
     removeMediaLibraryItem,
     openUpgradeModal,
+    terms,
   } = useDashboard();
 
-  const localizedCatalog = ADDON_CATALOG;
+  const localizedCatalog = getContextualAddonCatalog(terms.isStore);
   const allowedAddonsCount = localizedCatalog.filter((a) => isAddonAllowedForPlan(a.key, resolvedPlan)).length;
   const enabledCount = localizedCatalog.filter(
     (a) =>
@@ -241,7 +242,9 @@ export const AddonsPage: React.FC = () => {
                   <div className="mp-addon-setup-banner">
                     <Sparkles size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
                     <span>
-                      لتعمل هذه الإضافة بشكل صحيح في المنيو، راجع الحقول أدناه وعدّلها بما يناسبك ثم اضغط على{' '}
+                      {terms.isStore
+                        ? 'لتعمل هذه الإضافة بشكل صحيح في المتجر، راجع الحقول أدناه وعدّلها بما يناسبك ثم اضغط على '
+                        : 'لتعمل هذه الإضافة بشكل صحيح في المنيو، راجع الحقول أدناه وعدّلها بما يناسبك ثم اضغط على '}
                       <b>"تفعيل الإضافة الآن"</b>.
                     </span>
                   </div>
@@ -249,7 +252,7 @@ export const AddonsPage: React.FC = () => {
                   <label className="mp-addon-enable-switch">
                     <div>
                       <span style={{ display: 'block', fontWeight: 800, fontSize: '13.5px', color: 'var(--ink)' }}>
-                        حالة الميزة في المنيو
+                        {terms.isStore ? 'حالة الميزة في المتجر' : 'حالة الميزة في المنيو'}
                       </span>
                       <span style={{ display: 'block', fontSize: '11.5px', color: 'var(--muted)' }}>
                         {addonDraft.enabled ? 'مفعّلة وتظهر للزبائن الآن' : 'مضبوطة ولكن متوقفة مؤقتاً'}
@@ -337,7 +340,7 @@ export const AddonsPage: React.FC = () => {
                             className={`btn s ${popupMode === 'dish' ? 'p' : ''}`}
                             style={{ fontWeight: 800, fontSize: '12.5px', justifyContent: 'center' }}
                           >
-                            طبق من المنيو
+                            {terms.isStore ? 'منتج من المتجر' : 'طبق من المنيو'}
                           </button>
                         </div>
                       </div>
@@ -345,7 +348,7 @@ export const AddonsPage: React.FC = () => {
                       {popupMode === 'dish' ? (
                         <>
                           <label className="f">
-                            اختر الطبق للعرض الخاص *
+                            {terms.isStore ? 'اختر المنتج للعرض الخاص *' : 'اختر الطبق للعرض الخاص *'}
                             <select
                               value={addonDraft.itemId || ''}
                               onChange={(e) => {
@@ -374,7 +377,7 @@ export const AddonsPage: React.FC = () => {
                               }}
                               style={themedInputStyle}
                             >
-                              <option value="">— اختر طبقاً من المنيو —</option>
+                              <option value="">{terms.isStore ? '— اختر منتجاً من المتجر —' : '— اختر طبقاً من المنيو —'}</option>
                               {allItems.map((it) => (
                                 <option key={it.id} value={it.id}>
                                   {it.n} ({formatNumber(Number(it.pr) || 0)} {currency})
@@ -534,7 +537,7 @@ export const AddonsPage: React.FC = () => {
                         textAlign: 'center',
                       }}
                     >
-                      {addonDraft.text || 'معاينة شريط الإعلانات أعلى المنيو'}
+                      {addonDraft.text || (terms.isStore ? 'معاينة شريط الإعلانات أعلى المتجر' : 'معاينة شريط الإعلانات أعلى المنيو')}
                     </div>
                     <label className="f">
                       نص الشريط الإعلاني *
@@ -582,7 +585,7 @@ export const AddonsPage: React.FC = () => {
                     </label>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                       <label className="f">
-                        نوع الخصم الفعلي على المنيو
+                        {terms.isStore ? 'نوع الخصم الفعلي على المتجر' : 'نوع الخصم الفعلي على المنيو'}
                         <select
                           value={addonDraft.discountType || 'percent'}
                           onChange={(e) => updateDraft((p) => ({ ...p, discountType: e.target.value }))}
@@ -644,7 +647,7 @@ export const AddonsPage: React.FC = () => {
                         checked={addonDraft.showOnMenu !== false}
                         onChange={(e) => updateDraft((p) => ({ ...p, showOnMenu: e.target.checked }))}
                       />
-                      <span>عرض تقييمات الزبائن في صفحة المنيو</span>
+                      <span>{terms.isStore ? 'عرض تقييمات الزبائن في صفحة المتجر' : 'عرض تقييمات الزبائن في صفحة المنيو'}</span>
                     </label>
                     <label className="mp-addon-check-row">
                       <input
@@ -816,7 +819,7 @@ export const AddonsPage: React.FC = () => {
                       />
                     </label>
                     <label className="f">
-                      عدد الأصناف المقترحة داخل السلة (1 - 8)
+                      {terms.isStore ? 'عدد المنتجات المقترحة داخل السلة (1 - 8)' : 'عدد الأصناف المقترحة داخل السلة (1 - 8)'}
                       <input
                         type="number"
                         min={1}
@@ -882,7 +885,7 @@ export const AddonsPage: React.FC = () => {
 
                 {editingAddonKey === 'cutleryOption' && (
                   <label className="f">
-                    نص سؤال أدوات الطعام داخل السلة
+                    {terms.isStore ? 'نص سؤال التغليف الفاخر والفاتورة داخل السلة' : 'نص سؤال أدوات الطعام داخل السلة'}
                     <input
                       type="text"
                       value={addonDraft.label || ''}
@@ -983,7 +986,9 @@ export const AddonsPage: React.FC = () => {
                     >
                       {waTargetPhone
                         ? `سيتم توجيه الزبون إلى رقم الواتساب: ${waTargetPhone}`
-                        : 'تنبيه: يرجى التأكد من إضافة رقم واتساب المتجر في قسم "الإعدادات" ليظهر الزر للزبائن.'}
+                        : terms.isStore
+                        ? 'تنبيه: يرجى التأكد من إضافة رقم واتساب المتجر في قسم "الإعدادات" ليظهر الزر للزبائن.'
+                        : 'تنبيه: يرجى التأكد من إضافة رقم واتساب المطعم في قسم "الإعدادات" ليظهر الزر للزبائن.'}
                     </div>
                   </>
                 )}
@@ -1034,7 +1039,7 @@ export const AddonsPage: React.FC = () => {
                 {editingAddonKey === 'moodMealFinder' && (
                   <div className="mp-grid-2">
                     <label className="f">
-                      عنوان نافذة اختيار المزاج
+                      {terms.isStore ? 'عنوان نافذة مستشار التسوق الذكي' : 'عنوان نافذة اختيار المزاج'}
                       <input
                         type="text"
                         value={addonDraft.title || ''}
@@ -1043,7 +1048,7 @@ export const AddonsPage: React.FC = () => {
                       />
                     </label>
                     <label className="f">
-                      نص زر مكتشف المزاج في المنيو
+                      {terms.isStore ? 'نص زر مستشار التسوق في المتجر' : 'نص زر مكتشف المزاج في المنيو'}
                       <input
                         type="text"
                         value={addonDraft.buttonText || ''}
@@ -1073,7 +1078,11 @@ export const AddonsPage: React.FC = () => {
                         checked={addonDraft.allowArrivedPing !== false}
                         onChange={(e) => updateDraft((p) => ({ ...p, allowArrivedPing: e.target.checked }))}
                       />
-                      <span>تفعيل زر "وصلت أمام المطعم" لإرسال إشعار فوري عبر واتساب</span>
+                      <span>
+                        {terms.isStore
+                          ? 'تفعيل زر "وصلت أمام المعرض" لإرسال إشعار فوري عبر واتساب'
+                          : 'تفعيل زر "وصلت أمام المطعم" لإرسال إشعار فوري عبر واتساب'}
+                      </span>
                     </label>
                   </>
                 )}

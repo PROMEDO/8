@@ -19,19 +19,21 @@ interface UnifiedSetupProgressBarProps {
   stage: UnifiedSetupStage;
   onBackToSignupForm?: () => void;
   integrated?: boolean;
+  isStore?: boolean;
 }
 
 export const UnifiedSetupProgressBar: React.FC<UnifiedSetupProgressBarProps> = ({
   stage,
   onBackToSignupForm,
   integrated = true,
+  isStore = false,
 }) => {
   const UNIFIED_MILESTONES = [
     { id: 'account', label: 'الحساب' },
     { id: 'project', label: 'المشروع' },
     { id: 'hours', label: 'الأوقات' },
     { id: 'cats', label: 'الأقسام' },
-    { id: 'items', label: 'العناصر' },
+    { id: 'items', label: isStore ? 'المنتجات' : 'العناصر' },
     { id: 'ready', label: 'جاهز' },
   ] as const;
 
@@ -42,12 +44,12 @@ export const UnifiedSetupProgressBar: React.FC<UnifiedSetupProgressBarProps> = (
     'signup-form': {
       pct: 16,
       activeIndex: 0,
-      title: 'إنشاء الحساب وتجهيز المنيو',
+      title: isStore ? 'إنشاء الحساب وتجهيز المتجر' : 'إنشاء الحساب وتجهيز المنيو',
     },
     'signup-verify': {
       pct: 30,
       activeIndex: 0,
-      title: 'تأكيد الحساب لتجهيز المنيو',
+      title: isStore ? 'تأكيد الحساب لتجهيز المتجر' : 'تأكيد الحساب لتجهيز المنيو',
     },
     'onboard-info': {
       pct: 46,
@@ -62,17 +64,17 @@ export const UnifiedSetupProgressBar: React.FC<UnifiedSetupProgressBarProps> = (
     'onboard-cats': {
       pct: 78,
       activeIndex: 3,
-      title: 'إضافة أقسام المنيو',
+      title: isStore ? 'إضافة أقسام المتجر' : 'إضافة أقسام المنيو',
     },
     'onboard-items': {
       pct: 92,
       activeIndex: 4,
-      title: 'إضافة العناصر والأصناف',
+      title: isStore ? 'إضافة المنتجات والأسعار' : 'إضافة العناصر والأصناف',
     },
     'onboard-ready': {
       pct: 100,
       activeIndex: 5,
-      title: 'المنيو جاهز للانطلاق',
+      title: isStore ? 'المتجر جاهز للانطلاق' : 'المنيو جاهز للانطلاق',
     },
   };
 

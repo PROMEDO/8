@@ -98,6 +98,7 @@ interface QRCodeViewProps {
   showLogo?: boolean;
   hideActions?: boolean;
   onCopied?: () => void;
+  isStore?: boolean;
 }
 
 function drawRoundedRect(
@@ -273,10 +274,11 @@ export const QRCodeView: React.FC<QRCodeViewProps> = ({
   showLogo = false,
   hideActions = false,
   onCopied,
+  isStore = false,
 }) => {
   const displayRestName = restaurantName || 'مشروعي';
-  const scanOpenText = 'امسح الكود بالكاميرا لفتح المنيو والطلب';
-  const scanShortText = 'امسح الكود لفتح المنيو والطلب';
+  const scanOpenText = isStore ? 'امسح الكود بالكاميرا لفتح المتجر والطلب' : 'امسح الكود بالكاميرا لفتح المنيو والطلب';
+  const scanShortText = isStore ? 'امسح الكود لفتح المتجر والطلب' : 'امسح الكود لفتح المنيو والطلب';
   const scanInstantBadge = 'امسح للطلب الفوري 📱';
   const scanDirectText = 'امسح الكود للطلب المباشر 📱';
   const qrCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -429,7 +431,7 @@ export const QRCodeView: React.FC<QRCodeViewProps> = ({
     return () => {
       active = false;
     };
-  }, [url, size, dotStyle, bgPreset, framePreset, effectiveQrColor, qrTileBg, displayRestName, logoUrl, showLogo, bgTheme]);
+  }, [url, size, dotStyle, bgPreset, framePreset, effectiveQrColor, qrTileBg, displayRestName, logoUrl, showLogo, bgTheme, scanOpenText, scanInstantBadge, scanDirectText]);
 
   const handleDownload = () => {
     if (!cardDataUrl) return;

@@ -57,22 +57,22 @@ function formatOrderDayAndTime(order: Order): string {
   return order.createdAt || '—';
 }
 
-function getOrderTypeInfo(order: Order) {
+function getOrderTypeInfo(order: Order, isStore = false) {
   const rawType = order.type || order.cu?.orderType || 'delivery';
   const tableVal = String(order.table || order.cu?.table || '').trim();
 
   if (rawType === 'table') {
-    const base = 'طاولة';
+    const base = isStore ? 'داخل المعرض' : 'طاولة';
     return {
       key: 'table' as const,
       label: tableVal ? `${base} (${tableVal})` : base,
-      Icon: Utensils,
+      Icon: isStore ? Store : Utensils,
     };
   }
   if (rawType === 'pickup') {
     return {
       key: 'pickup' as const,
-      label: 'استلام',
+      label: isStore ? 'استلام من المعرض' : 'استلام',
       Icon: Store,
     };
   }
@@ -185,6 +185,7 @@ export const OrdersPage: React.FC = () => {
   const prefersReducedMotion = useReducedMotion();
   const {
     rest,
+    terms,
     currency,
     allOrders,
     filteredOrders,
@@ -286,7 +287,9 @@ export const OrdersPage: React.FC = () => {
             لا توجد طلبات في هذا التصنيف حالياً
           </h3>
           <p style={{ fontSize: '13.5px', margin: 0, color: 'var(--muted)' }}>
-            عندما يقوم الزبائن بالطلب عبر المنيو ستظهر طلباتهم هنا فوراً.
+            {terms.isStore
+              ? 'عندما يقوم الزبائن بالطلب عبر المتجر ستظهر طلباتهم هنا فوراً.'
+              : 'عندما يقوم الزبائن بالطلب عبر المنيو ستظهر طلباتهم هنا فوراً.'}
           </p>
         </div>
       ) : (
@@ -294,7 +297,7 @@ export const OrdersPage: React.FC = () => {
           {filteredOrders.map((order, idx) => {
             const ordName = order.name || order.cu?.n || '';
             const ordPhone = order.phone || order.cu?.ph || '';
-            const typeInfo = getOrderTypeInfo(order);
+            const typeInfo = getOrderTypeInfo(order, terms.isStore);
             const TypeIcon = typeInfo.Icon;
             const statusInfo = getOrderStatusInfo(order);
             const displayOrderNum = getOrderDisplayNumber(order);
@@ -396,7 +399,7 @@ export const OrdersPage: React.FC = () => {
         const ordCity = selectedOrder.cu?.city || selectedOrder.city || '';
         const ordTable = selectedOrder.table || selectedOrder.cu?.table || '';
         const deliveryFee = Number(selectedOrder.cu?.deliveryFee ?? selectedOrder.deliveryFee ?? 0);
-        const typeInfo = getOrderTypeInfo(selectedOrder);
+        const typeInfo = getOrderTypeInfo(selectedOrder, terms.isStore);
         const TypeIcon = typeInfo.Icon;
         const statusInfo = getOrderStatusInfo(selectedOrder);
         const displayOrderNum = getOrderDisplayNumber(selectedOrder);
@@ -552,7 +555,9 @@ export const OrdersPage: React.FC = () => {
 
                     {ordTable && (
                       <div className="mp-order-info-item">
-                        <span className="mp-order-info-label">رقم الطاولة</span>
+                        <span className="mp-order-info-label">
+                          {terms.isStore ? 'رقم المعرض / الفاتورة' : 'رقم الطاولة'}
+                        </span>
                         <span className="mp-order-info-val">{ordTable}</span>
                       </div>
                     )}
@@ -566,7 +571,9 @@ export const OrdersPage: React.FC = () => {
 
                     {typeof selectedOrder.needCutlery === 'boolean' && (
                       <div className="mp-order-info-item">
-                        <span className="mp-order-info-label">أدوات الطعام</span>
+                        <span className="mp-order-info-label">
+                          {terms.isStore ? 'تغليف هدية / فاتورة' : 'أدوات الطعام'}
+                        </span>
                         <span className="mp-order-info-val">
                           {selectedOrder.needCutlery ? 'نعم (مطلوبة)' : 'لا حاجة'}
                         </span>

@@ -39,6 +39,7 @@ import {
   Eye,
   LayoutDashboard,
   SlidersHorizontal,
+  Sparkles,
   Image as ImageIcon,
   X,
 } from 'lucide-react';
@@ -54,6 +55,7 @@ import {
   isReservedSlug,
   sanitizeSlug,
 } from '../utils/businessDefaults';
+import { seedStoreCatalogForAccount } from '../data/storeSeedCatalog';
 
 interface OnboardingViewProps {
   restaurantId: string;
@@ -225,11 +227,12 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
 
   const isStore = projectType === 'store';
   const storeCatSuggestions = [
-    'إلكترونيات',
-    'أدوات منزلية',
-    'ملابس وأزياء',
-    'عطور ومستلزمات',
-    'إكسسوارات',
+    'الهواتف الذكية',
+    'اللابتوبات والأجهزة اللوحية',
+    'السماعات والصوتيات',
+    'الساعات الذكية',
+    'الشواحن والإكسسوارات',
+    'الألعاب والمنزل الذكي',
   ];
   const restCatSuggestions = [
     'البرجر',
@@ -401,7 +404,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
       if (allItems.length === 0) {
         setError(
           isStore
-            ? 'يرجى إضافة منتج واحد على الأقل للمنيو قبل المتابعة.'
+            ? 'يرجى إضافة منتج واحد على الأقل للمتجر قبل المتابعة.'
             : 'يرجى إضافة عنصر واحد على الأقل للمنيو قبل المتابعة.'
         );
         return;
@@ -666,7 +669,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
           {projectName.trim() || 'تجهيز مشروعك'}
         </h1>
         <p className="muted" style={{ fontSize: '13px', margin: 0 }}>
-          أكمل الخطوات السريعة لتجهيز منيوك الإلكتروني
+          {isStore ? 'أكمل الخطوات السريعة لتجهيز متجرك الإلكتروني' : 'أكمل الخطوات السريعة لتجهيز منيوك الإلكتروني'}
         </p>
       </div>
 
@@ -678,7 +681,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
         transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
       >
         {step < 5 && (
-          <UnifiedSetupProgressBar stage={onboardStageMap[step] || 'onboard-info'} integrated />
+          <UnifiedSetupProgressBar stage={onboardStageMap[step] || 'onboard-info'} integrated isStore={isStore} />
         )}
 
         <motion.div
@@ -1008,6 +1011,8 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                   <b style={{ fontSize: '13.5px' }}>
                     {subdomainEnabled
                       ? 'الرابط الفرعي المخصص (اختياري)'
+                      : isStore
+                      ? 'رابط المتجر باسم حسابك (اختياري)'
                       : 'رابط المنيو باسم حسابك (اختياري)'}
                   </b>
                 </div>
@@ -1225,9 +1230,55 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
           </div>
           <p className="muted" style={{ fontSize: '13.5px', marginBottom: '18px' }}>
             {isStore
-              ? 'أضف أقسام منتجاتك بكتابة الاسم أو اختيار قسم جاهز:'
+              ? 'أضف أقسام متجرك بكتابة الاسم أو اختيار قسم جاهز، أو استورد الكتالوج المتكامل بنقرة واحدة:'
               : 'أضف أقسام قائمة طعامك بكتابة الاسم أو اختيار قسم جاهز:'}
           </p>
+
+          {savedBanner && (
+            <div
+              style={{
+                marginBottom: '12px',
+                padding: '9px 14px',
+                borderRadius: '10px',
+                background: 'var(--soft)',
+                border: '1px solid var(--line)',
+                color: 'var(--brand-ink, var(--brand))',
+                fontSize: '13px',
+                fontWeight: 800,
+                textAlign: 'center',
+              }}
+            >
+              {savedBanner}
+            </div>
+          )}
+
+          {isStore && (
+            <div style={{ marginBottom: '14px' }}>
+              <button
+                type="button"
+                className="btn s"
+                onClick={() => {
+                  const added = seedStoreCatalogForAccount(restaurantId, latestRest.currency || 'د.ع', 'append_missing');
+                  onRefresh();
+                  setSavedBanner(added.catsAdded + added.itemsAdded > 0 ? '✓ تم إضافة أقسام ومنتجات المتجر الجاهزة بنجاح' : '✓ جميع أقسام ومنتجات المتجر مضافة بالفعل');
+                  setTimeout(() => setSavedBanner(''), 2500);
+                }}
+                style={{
+                  width: '100%',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  fontWeight: 800,
+                  borderRadius: '12px',
+                  padding: '10px 14px',
+                  border: '1px solid var(--brand)',
+                  color: 'var(--brand-ink, var(--brand))',
+                }}
+              >
+                <Sparkles size={15} />
+                <span>تعبئة أقسام ومنتجات المتجر الجاهزة بنقرة واحدة</span>
+              </button>
+            </div>
+          )}
 
           {/* Add Input */}
           <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
@@ -1241,7 +1292,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                   handleAddCategory();
                 }
               }}
-              placeholder={isStore ? 'اكتب اسم القسم (مثال: عطور)' : 'اكتب اسم القسم (مثال: البرجر)'}
+              placeholder={isStore ? 'اكتب اسم القسم (مثال: الهواتف الذكية)' : 'اكتب اسم القسم (مثال: البرجر)'}
               style={{
                 flex: 1,
                 padding: '12px 14px',
@@ -1457,12 +1508,41 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                 border: '1px solid var(--line)',
               }}
             >
-              {allItems.length} {resolvedPlan.maxItems !== -1 ? `/ ${resolvedPlan.maxItems}` : 'عنصر'}
+              {allItems.length} {resolvedPlan.maxItems !== -1 ? `/ ${resolvedPlan.maxItems}` : isStore ? 'منتج' : 'عنصر'}
             </span>
           </div>
-          <p className="muted" style={{ fontSize: '13.5px', marginBottom: '16px' }}>
-            اختر القسم ثم أضف الاسم والسعر، ويمكنك تعديل أي عنصر في أي وقت:
+          <p className="muted" style={{ fontSize: '13.5px', marginBottom: '12px' }}>
+            {isStore
+              ? 'اختر القسم ثم أضف اسم المنتج وسعره، أو استورد منتجات المتجر الجاهزة بنقرة واحدة:'
+              : 'اختر القسم ثم أضف الاسم والسعر، ويمكنك تعديل أي عنصر في أي وقت:'}
           </p>
+          {isStore && (
+            <div style={{ marginBottom: '14px' }}>
+              <button
+                type="button"
+                className="btn s"
+                onClick={() => {
+                  const added = seedStoreCatalogForAccount(restaurantId, latestRest.currency || 'د.ع', 'append_missing');
+                  onRefresh();
+                  setSavedBanner(added.catsAdded + added.itemsAdded > 0 ? '✓ تم استيراد منتجات المتجر الجاهزة بنجاح' : '✓ منتجات المتجر مضافة بالفعل');
+                  setTimeout(() => setSavedBanner(''), 2500);
+                }}
+                style={{
+                  width: '100%',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  fontWeight: 800,
+                  borderRadius: '12px',
+                  padding: '9px 14px',
+                  border: '1px solid var(--brand)',
+                  color: 'var(--brand-ink, var(--brand))',
+                }}
+              >
+                <Sparkles size={15} />
+                <span>تعبئة منتجات متجر جاهزة بالصور والأسعار</span>
+              </button>
+            </div>
+          )}
 
           {/* Quick Category Pills */}
           {allCategories.length > 0 && (
@@ -1527,7 +1607,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                     type="text"
                     value={itemName}
                     onChange={(e) => setItemName(e.target.value)}
-                    placeholder={isStore ? 'مثال: عطر عود' : 'مثال: برجر كلاسيك'}
+                    placeholder={isStore ? 'مثال: iPhone 16 Pro Max' : 'مثال: برجر كلاسيك'}
                     style={{
                       width: '100%',
                       padding: '10px 12px',
@@ -1633,7 +1713,9 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                   style={{ flex: 1, padding: '11px', fontSize: '14px', fontWeight: 800 }}
                 >
                   {editingItemId
-                    ? '✓ حفظ تعديلات العنصر'
+                    ? isStore
+                      ? '✓ حفظ تعديلات المنتج'
+                      : '✓ حفظ تعديلات العنصر'
                     : isStore
                     ? '+ إضافة المنتج'
                     : '+ إضافة العنصر'}
@@ -1660,7 +1742,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
           {/* Added Items List */}
           <div style={{ paddingTop: '16px', borderTop: '1px solid var(--line)' }}>
             <h4 style={{ fontSize: '14px', fontWeight: 800, marginBottom: '10px' }}>
-              العناصر المضافة ({allItems.length}):
+              {isStore ? 'المنتجات المضافة' : 'العناصر المضافة'} ({allItems.length}):
             </h4>
             {allItems.length === 0 ? (
               <div
@@ -1820,7 +1902,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
           </div>
 
           <h2 style={{ fontSize: '23px', fontWeight: 900, marginBottom: '10px', color: 'var(--ink)' }}>
-            مبروك! المنيو الخاص بمشروعك جاهز الآن
+            {isStore ? 'مبروك! متجرك الإلكتروني جاهز الآن' : 'مبروك! المنيو الخاص بمشروعك جاهز الآن'}
           </h2>
 
           <p
@@ -1832,7 +1914,9 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
               margin: '0 auto 24px',
             }}
           >
-            {`تم تجهيز منيو ${projectName.trim() || latestRest.n} (${allCategories.length} أقسام • ${allItems.length} عناصر). يمكنك الآن إكمال التعديلات وإضافة المزيد أو معاينة المنيو مباشرة.`}
+            {isStore
+              ? `تم تجهيز متجر ${projectName.trim() || latestRest.n} (${allCategories.length} أقسام • ${allItems.length} منتجات). يمكنك الآن إكمال التعديلات وإضافة المزيد أو معاينة المتجر مباشرة.`
+              : `تم تجهيز منيو ${projectName.trim() || latestRest.n} (${allCategories.length} أقسام • ${allItems.length} عناصر). يمكنك الآن إكمال التعديلات وإضافة المزيد أو معاينة المنيو مباشرة.`}
           </p>
 
           <div
@@ -1844,7 +1928,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
               margin: '0 auto',
             }}
           >
-            {/* زر 1: أكمل التعديل على المنيو */}
+            {/* زر 1: أكمل التعديل */}
             <button
               type="button"
               onClick={() => {
@@ -1864,10 +1948,10 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
               }}
             >
               <SlidersHorizontal size={18} />
-              <span>أكمل التعديل على المنيو</span>
+              <span>{isStore ? 'أكمل التعديل على المتجر' : 'أكمل التعديل على المنيو'}</span>
             </button>
 
-            {/* زر 2: معاينة شكل المنيو */}
+            {/* زر 2: معاينة */}
             <a
               href={previewPath}
               onClick={(e) => {
@@ -1890,7 +1974,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
               }}
             >
               <Eye size={18} />
-              <span>معاينة شكل المنيو</span>
+              <span>{isStore ? 'معاينة شكل المتجر' : 'معاينة شكل المنيو'}</span>
             </a>
 
             {/* زر 3: لوحة التحكم */}
@@ -1939,10 +2023,12 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', marginBottom: '18px' }}>
             <div>
               <h2 style={{ fontSize: '20px', fontWeight: 900, margin: '0 0 4px' }}>
-                إكمال التعديل على المنيو
+                {isStore ? 'إكمال التعديل على المتجر' : 'إكمال التعديل على المنيو'}
               </h2>
               <p className="muted" style={{ fontSize: '13px', margin: 0 }}>
-                أضف وصف المشروع، اختر المظهر الفاتح أو الغامق، أو أضف أقساماً وعناصر جديدة
+                {isStore
+                  ? 'أضف وصف متجرك ونبذته، أو أضف أقساماً ومنتجات جديدة'
+                  : 'أضف وصف المشروع، اختر المظهر الفاتح أو الغامق، أو أضف أقساماً وعناصر جديدة'}
               </p>
             </div>
             <button
@@ -1998,7 +2084,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
               onClick={() => setCustomizeTab('items')}
               style={{ justifyContent: 'center', fontWeight: 800 }}
             >
-              العناصر ({allItems.length})
+              {isStore ? 'المنتجات' : 'العناصر'} ({allItems.length})
             </button>
           </div>
 
@@ -2258,7 +2344,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                       type="text"
                       value={itemName}
                       onChange={(e) => setItemName(e.target.value)}
-                      placeholder="اسم العنصر..."
+                      placeholder={isStore ? 'اسم المنتج...' : 'اسم العنصر...'}
                       style={{
                         padding: '10px',
                         borderRadius: '10px',
@@ -2401,7 +2487,7 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
               style={{ justifyContent: 'center', fontWeight: 800, padding: '12px' }}
             >
               <Eye size={17} />
-              <span>حفظ ومعاينة شكل المنيو</span>
+              <span>{isStore ? 'حفظ ومعاينة شكل المتجر' : 'حفظ ومعاينة شكل المنيو'}</span>
             </button>
             <button
               type="button"
@@ -2468,7 +2554,9 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
               {isSavingStep
                 ? 'جاري الحفظ...'
                 : step === 3
-                ? 'إنهاء وتجهيز المنيو'
+                ? isStore
+                  ? 'إنهاء وتجهيز المتجر'
+                  : 'إنهاء وتجهيز المنيو'
                 : 'التالي'}
             </span>
             {!isSavingStep && <ArrowLeft size={16} />}

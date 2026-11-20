@@ -278,8 +278,12 @@ export const StatsPage: React.FC = () => {
     if (pickupCount >= tableCount) {
       return { label: terms.pickupLabel, count: pickupCount, Icon: Store };
     }
-    return { label: 'طاولات', count: tableCount, Icon: Utensils };
-  }, [validOrders.length, deliveryCount, pickupCount, tableCount, terms.pickupLabel]);
+    return {
+      label: terms.isStore ? 'داخل المعرض' : 'طاولات',
+      count: tableCount,
+      Icon: terms.isStore ? Store : Utensils,
+    };
+  }, [validOrders.length, deliveryCount, pickupCount, tableCount, terms.pickupLabel, terms.isStore]);
 
   // Activity Chart Buckets
   const chartBuckets = useMemo(() => {
@@ -448,14 +452,20 @@ export const StatsPage: React.FC = () => {
       { id: 'delivery', label: 'توصيل', count: deliveryCount, color: '#10b981', Icon: Truck },
       { id: 'pickup', label: terms.pickupLabel, count: pickupCount, color: '#3b82f6', Icon: Store },
     ];
-    if (resolvedPlan.perms.tableOrders || tableCount > 0) {
-      list.push({ id: 'table', label: 'طاولات', count: tableCount, color: '#f59e0b', Icon: Utensils });
+    if ((!terms.isStore && resolvedPlan.perms.tableOrders) || tableCount > 0) {
+      list.push({
+        id: 'table',
+        label: terms.isStore ? 'داخل المعرض' : 'طاولات',
+        count: tableCount,
+        color: '#f59e0b',
+        Icon: terms.isStore ? Store : Utensils,
+      });
     }
     return list.map((row) => ({
       ...row,
       pct: validOrders.length > 0 ? Math.round((row.count / total) * 100) : 0,
     }));
-  }, [validOrders.length, deliveryCount, pickupCount, tableCount, terms.pickupLabel, resolvedPlan.perms.tableOrders]);
+  }, [validOrders.length, deliveryCount, pickupCount, tableCount, terms.pickupLabel, terms.isStore, resolvedPlan.perms.tableOrders]);
 
   const handleStepDate = (direction: 'prev' | 'next') => {
     const step = direction === 'prev' ? -1 : 1;
@@ -531,7 +541,9 @@ export const StatsPage: React.FC = () => {
                 {`الإحصائيات مقفلة في ${activePlanName}`}
               </h2>
               <p style={{ margin: 0, fontSize: '13px', color: 'var(--muted)', lineHeight: 1.55 }}>
-                قم بترقية باقتك لمتابعة المبيعات اليومية والشهرية والأصناف الأكثر طلباً.
+                {terms.isStore
+                  ? 'قم بترقية باقتك لمتابعة المبيعات اليومية والشهرية والمنتجات الأكثر مبيعاً.'
+                  : 'قم بترقية باقتك لمتابعة المبيعات اليومية والشهرية والأصناف الأكثر طلباً.'}
               </p>
             </div>
           </div>
@@ -1020,7 +1032,11 @@ export const StatsPage: React.FC = () => {
                       }}
                     >
                       <BarChart3 size={22} style={{ margin: '0 auto 6px', opacity: 0.6 }} />
-                      <div>لا توجد مبيعات أصناف في هذه الفترة بعد.</div>
+                      <div>
+                        {terms.isStore
+                          ? 'لا توجد مبيعات منتجات في هذه الفترة بعد.'
+                          : 'لا توجد مبيعات أصناف في هذه الفترة بعد.'}
+                      </div>
                     </div>
                   ) : (
                     <div>

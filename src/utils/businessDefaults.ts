@@ -6,7 +6,7 @@
 import restLogoUrl from '../assets/images/default_rest_logo_1794645977825.jpg';
 import restBannerUrl from '../assets/images/default_rest_banner_1794645979472.jpg';
 import storeLogoUrl from '../assets/images/default_store_logo_1794645977523.jpg';
-import storeBannerUrl from '../assets/images/default_store_banner_1794645978498.jpg';
+import storeBannerUrl from '../assets/images/estore_hero_promo_1795173985154.jpg';
 import type { Restaurant, SiteSettings } from '../types';
 import type { ResolvedPlanInfo } from './plans';
 import { isStoreProject } from './terminology';

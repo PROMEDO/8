@@ -4,6 +4,8 @@
  */
 
 import { Restaurant, RestaurantAddons, SupportedLanguage } from '../types';
+import { isStoreProject } from '../utils/terminology';
+import estoreHeroPromoImg from '../assets/images/estore_hero_promo_1795173985154.jpg';
 
 export type AddonKey = keyof RestaurantAddons;
 export type AddonCategoryFilter = 'all' | 'marketing' | 'sales' | 'experience' | 'orders';
@@ -182,6 +184,81 @@ export const ADDON_CATALOG: AddonMetaItem[] = [
   },
 ];
 
+export const STORE_ADDON_CATALOG: AddonMetaItem[] = ADDON_CATALOG.map((item) => {
+  switch (item.key) {
+    case 'offerPopup':
+      return {
+        ...item,
+        desc: 'نافذة ترحيبية منبثقة تظهر للزبائن فور دخول المتجر للإعلان عن عرض أو منتج مميز.',
+      };
+    case 'announcementBar':
+      return {
+        ...item,
+        title: 'شريط الإعلانات أعلى المتجر',
+        desc: 'شريط ملون بارز أعلى واجهة المتجر لعرض التنبيهات وأهم العروض والتخفيضات للزوار.',
+      };
+    case 'countdownTimer':
+      return {
+        ...item,
+        desc: 'عدّاد وقت تنازلي مباشر في أعلى المتجر يطبق نسبة أو مبلغ خصم تلقائياً على جميع أسعار المنتجات.',
+      };
+    case 'whatsappSupportFloat':
+      return {
+        ...item,
+        desc: 'أيقونة واتساب عائمة لتواصل المتسوق السريع بشأن المنتجات والضمان والطلبات الخاصة.',
+      };
+    case 'cartUpsell':
+      return {
+        ...item,
+        icon: '🎧',
+        title: 'ملحقات وإكسسوارات مقترحة (Upsell)',
+        desc: 'عرض منتجات وإكسسوارات مقترحة بضغطة زر داخل سلة التسوق لرفع متوسط قيمة الطلب.',
+      };
+    case 'freeGiftThreshold':
+      return {
+        ...item,
+        desc: 'منح هدية مجانية (ملحق أو إكسسوار) عند وصول الطلب لمبلغ محدد مع شريط تقدم تحفيزي في السلة.',
+      };
+    case 'loyaltyPoints':
+      return {
+        ...item,
+        desc: 'احتساب نقاط ولاء تلقائية للمتسوق مع كل طلب وعرض رصيده لتشجيعه على الشراء مجدداً.',
+      };
+    case 'customerReviews':
+      return {
+        ...item,
+        desc: 'عرض تقييمات المتسوقين في المتجر وإتاحة نموذج إضافة تقييم وتجربة شراء جديدة.',
+      };
+    case 'cutleryOption':
+      return {
+        ...item,
+        icon: '🎁',
+        title: 'خيار تغليف هدية وفاتورة',
+        desc: 'مفتاح اختياري داخل السلة يسأل الزبون إن كان يرغب بتغليف هدية أو فاتورة مطبوعة مع الطلب.',
+      };
+    case 'moodMealFinder':
+      return {
+        ...item,
+        icon: '🛍️',
+        title: 'مستشار التسوق الذكي',
+        desc: 'اختبار سريع من 3 ثوانٍ يختار فيه الزبون احتياجه ليرشح له المتجر أنسب 3 منتجات فوراً.',
+      };
+    case 'curbsidePickupCar':
+      return {
+        ...item,
+        desc: 'إدخال نوع ولون السيارة عند الاستلام مع زر "وصلت أمام المتجر" لإرسال إشعار فوري بالواتساب.',
+      };
+    case 'pickupInstantDiscount':
+      return {
+        ...item,
+        title: 'خصم الاستلام من المعرض',
+        desc: 'تطبيق خصم تلقائي لمن يحضر لاستلام طلبه بنفسه من المتجر لتخفيف ضغط التوصيل.',
+      };
+    default:
+      return item;
+  }
+});
+
 const ADDON_I18N: Record<AddonKey, { kuTitle: string; kuDesc: string; enTitle: string; enDesc: string }> = {
   freeDeliveryProgress: {
     kuTitle: 'کەمترین بڕ بۆ گەیاندنی بێبەرامبەر + شریتی پێشکەوتن',
@@ -299,9 +376,10 @@ const ADDON_I18N: Record<AddonKey, { kuTitle: string; kuDesc: string; enTitle: s
   },
 };
 
-export function getLocalizedAddonCatalog(lang: SupportedLanguage = 'ar'): AddonMetaItem[] {
-  if (lang === 'ar') return ADDON_CATALOG;
-  return ADDON_CATALOG.map((item) => {
+export function getLocalizedAddonCatalog(lang: SupportedLanguage = 'ar', isStore = false): AddonMetaItem[] {
+  const baseCatalog = isStore ? STORE_ADDON_CATALOG : ADDON_CATALOG;
+  if (lang === 'ar') return baseCatalog;
+  return baseCatalog.map((item) => {
     const tr = ADDON_I18N[item.key];
     if (!tr) return item;
     return {
@@ -312,7 +390,12 @@ export function getLocalizedAddonCatalog(lang: SupportedLanguage = 'ar'): AddonM
   });
 }
 
+export function getContextualAddonCatalog(isStore: boolean, lang: SupportedLanguage = 'ar'): AddonMetaItem[] {
+  return getLocalizedAddonCatalog(lang, isStore);
+}
+
 export function buildDefaultAddons(rest?: Restaurant): RestaurantAddons {
+  const isStore = isStoreProject(rest?.projectType);
   const saved = (rest?.addons || {}) as Record<string, any>;
   const isCfg = (key: string, legacyEnabled = false) =>
     Boolean(saved[key]?.configured || saved[key]?.enabled || legacyEnabled);
@@ -320,7 +403,10 @@ export function buildDefaultAddons(rest?: Restaurant): RestaurantAddons {
     saved.offerPopup?.mode === 'dish' || rest?.offerPopup?.mode === 'dish' ? 'dish' : 'ad';
   const rawPopupBtn = String(saved.offerPopup?.buttonText || rest?.offerPopup?.buttonText || '').trim();
   const resolvedPopupBtn =
-    !rawPopupBtn || rawPopupBtn === 'تصفح المنيو واطلب الآن' || rawPopupBtn === 'تصفح المنيو'
+    !rawPopupBtn ||
+    rawPopupBtn === 'تصفح المنيو واطلب الآن' ||
+    rawPopupBtn === 'تصفح المنيو' ||
+    rawPopupBtn === 'تصفح المتجر واطلب الآن'
       ? popupMode === 'dish'
         ? 'إضافة إلى السلة'
         : 'إغلاق'
@@ -335,7 +421,11 @@ export function buildDefaultAddons(rest?: Restaurant): RestaurantAddons {
       mode: popupMode,
       itemId: popupMode === 'dish' ? (saved.offerPopup?.itemId || rest?.offerPopup?.itemId || '') : '',
       specialPrice:
-        popupMode === 'dish'
+        popupMode === 'dish' &&
+        saved.offerPopup?.specialPrice === undefined &&
+        rest?.offerPopup?.specialPrice === undefined
+          ? undefined
+          : popupMode === 'dish'
           ? (saved.offerPopup?.specialPrice ?? rest?.offerPopup?.specialPrice)
           : undefined,
       badgeText: saved.offerPopup?.badgeText || rest?.offerPopup?.badgeText || '',
@@ -344,7 +434,9 @@ export function buildDefaultAddons(rest?: Restaurant): RestaurantAddons {
       image:
         saved.offerPopup?.image ||
         rest?.offerPopup?.image ||
-        'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=700&q=80',
+        (isStore
+          ? estoreHeroPromoImg
+          : 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=700&q=80'),
       buttonText: resolvedPopupBtn,
     },
     announcementBar: {
@@ -360,7 +452,9 @@ export function buildDefaultAddons(rest?: Restaurant): RestaurantAddons {
       title: saved.countdownTimer?.title || 'عرض الساعة الذهبية',
       discountType: saved.countdownTimer?.discountType || 'percent',
       discountValue: saved.countdownTimer?.discountValue ?? 15,
-      discountText: saved.countdownTimer?.discountText || 'خصم 15% لفترة محدودة على كل المنيو',
+      discountText:
+        saved.countdownTimer?.discountText ||
+        (isStore ? 'خصم 15% لفترة محدودة على كل المتجر' : 'خصم 15% لفترة محدودة على كل المنيو'),
       endHour: saved.countdownTimer?.endHour ?? 23,
     },
     customerReviews: {
@@ -393,12 +487,16 @@ export function buildDefaultAddons(rest?: Restaurant): RestaurantAddons {
       configured: isCfg('freeGiftThreshold'),
       enabled: saved.freeGiftThreshold?.enabled ?? false,
       minAmount: saved.freeGiftThreshold?.minAmount ?? 25000,
-      giftName: saved.freeGiftThreshold?.giftName || 'بيبسي مجاني + صوص خاص',
+      giftName:
+        saved.freeGiftThreshold?.giftName ||
+        (isStore ? 'كفر حماية مجاني + كيبل شحن' : 'بيبسي مجاني + صوص خاص'),
     },
     cartUpsell: {
       configured: isCfg('cartUpsell'),
       enabled: saved.cartUpsell?.enabled ?? false,
-      title: saved.cartUpsell?.title || 'أكمل وجبتك بهذه الإضافات اللذيذة',
+      title:
+        saved.cartUpsell?.title ||
+        (isStore ? 'أكمل طلبك بهذه الإكسسوارات والمنتجات' : 'أكمل وجبتك بهذه الإضافات اللذيذة'),
       maxItems: saved.cartUpsell?.maxItems ?? 4,
     },
     spinWheelPromo: {
@@ -411,12 +509,18 @@ export function buildDefaultAddons(rest?: Restaurant): RestaurantAddons {
       configured: isCfg('loyaltyPoints'),
       enabled: saved.loyaltyPoints?.enabled ?? false,
       pointsPerThousand: saved.loyaltyPoints?.pointsPerThousand ?? 1,
-      rewardNote: saved.loyaltyPoints?.rewardNote || 'اجمع نقاطك مع كل طلب للحصول على وجبات مجانية',
+      rewardNote:
+        saved.loyaltyPoints?.rewardNote ||
+        (isStore
+          ? 'اجمع نقاطك مع كل طلب للحصول على خصومات وهدايا حصرية'
+          : 'اجمع نقاطك مع كل طلب للحصول على وجبات مجانية'),
     },
     cutleryOption: {
       configured: isCfg('cutleryOption'),
       enabled: saved.cutleryOption?.enabled ?? false,
-      label: saved.cutleryOption?.label || 'أحتاج أدوات طعام ومناديل مع الطلب',
+      label:
+        saved.cutleryOption?.label ||
+        (isStore ? 'أحتاج تغليف هدية / فاتورة مطبوعة' : 'أحتاج أدوات طعام ومناديل مع الطلب'),
     },
     firstOrderDiscount: {
       configured: isCfg('firstOrderDiscount'),
@@ -439,7 +543,9 @@ export function buildDefaultAddons(rest?: Restaurant): RestaurantAddons {
       configured: isCfg('whatsappSupportFloat'),
       enabled: saved.whatsappSupportFloat?.enabled ?? false,
       label: saved.whatsappSupportFloat?.label || 'تواصل معنا',
-      prefillText: saved.whatsappSupportFloat?.prefillText || 'مرحباً، لدي استفسار عن المنيو والطلبات',
+      prefillText:
+        saved.whatsappSupportFloat?.prefillText ||
+        (isStore ? 'مرحباً، لدي استفسار عن المنتجات والطلبات' : 'مرحباً، لدي استفسار عن المنيو والطلبات'),
     },
     groupOrderBillSplit: {
       configured: isCfg('groupOrderBillSplit'),
@@ -449,19 +555,29 @@ export function buildDefaultAddons(rest?: Restaurant): RestaurantAddons {
     pickupInstantDiscount: {
       configured: isCfg('pickupInstantDiscount'),
       enabled: saved.pickupInstantDiscount?.enabled ?? false,
-      title: saved.pickupInstantDiscount?.title || 'خصم خاص للاستلام الذاتي من المطعم',
+      title:
+        saved.pickupInstantDiscount?.title ||
+        (isStore ? 'خصم خاص للاستلام الذاتي من المعرض' : 'خصم خاص للاستلام الذاتي من المطعم'),
       discountPercent: saved.pickupInstantDiscount?.discountPercent ?? 10,
     },
     moodMealFinder: {
       configured: isCfg('moodMealFinder'),
       enabled: saved.moodMealFinder?.enabled ?? false,
-      title: saved.moodMealFinder?.title || 'محتار شتاكل؟ خلّي مستشار المزاج يختارلك!',
-      buttonText: saved.moodMealFinder?.buttonText || 'اختر لي وجبة حسب مزاجي ✨',
+      title:
+        saved.moodMealFinder?.title ||
+        (isStore ? 'مستشار التسوق الذكي — اختر الأنسب لاحتياجك!' : 'محتار شتاكل؟ خلّي مستشار المزاج يختارلك!'),
+      buttonText:
+        saved.moodMealFinder?.buttonText ||
+        (isStore ? 'رشّح لي أفضل المنتجات ✨' : 'اختر لي وجبة حسب مزاجي ✨'),
     },
     curbsidePickupCar: {
       configured: isCfg('curbsidePickupCar'),
       enabled: saved.curbsidePickupCar?.enabled ?? false,
-      instructions: saved.curbsidePickupCar?.instructions || 'اركن سيارتك أمام البوابة واضغط وصلت ليخرج الموظف إليك',
+      instructions:
+        saved.curbsidePickupCar?.instructions ||
+        (isStore
+          ? 'اركن سيارتك أمام المتجر واضغط وصلت ليخرج الموظف بتغليف طلبك'
+          : 'اركن سيارتك أمام البوابة واضغط وصلت ليخرج الموظف إليك'),
       allowArrivedPing: saved.curbsidePickupCar?.allowArrivedPing ?? true,
     },
   };

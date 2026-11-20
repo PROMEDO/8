@@ -24,6 +24,7 @@ import {
   Plus,
   Search,
   Share2,
+  ShieldCheck,
   ShoppingBag,
   Smile,
   Sparkles,
@@ -3364,12 +3365,12 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
                 </div>
               )}
 
-              {/* Allergens Accordion */}
+              {/* Allergens / Product Specs & Warranty Accordion */}
               {activeProduct.allergens && (
                 <div
                   style={{
-                    border: '1px solid rgba(251, 191, 36, 0.35)',
-                    background: 'rgba(245, 158, 11, 0.12)',
+                    border: isEstore ? '1px solid rgba(15, 118, 110, 0.25)' : '1px solid rgba(251, 191, 36, 0.35)',
+                    background: isEstore ? 'rgba(15, 118, 110, 0.08)' : 'rgba(245, 158, 11, 0.12)',
                     borderRadius: '12px',
                     padding: '10px 12px',
                     marginBottom: '14px',
@@ -3389,12 +3390,12 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
                       cursor: 'pointer',
                       fontSize: '12.5px',
                       fontWeight: 700,
-                      color: isLightMenu ? '#92400e' : '#FCD34D',
+                      color: isEstore ? '#0f766e' : isLightMenu ? '#92400e' : '#FCD34D',
                     }}
                   >
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                      <AlertTriangle size={15} />
-                      <span>قد يحتوي على مسببات حساسية</span>
+                      {isEstore ? <ShieldCheck size={15} /> : <AlertTriangle size={15} />}
+                      <span>{isEstore ? 'مواصفات وضمان المنتج' : 'قد يحتوي على مسببات حساسية'}</span>
                     </span>
                     <ChevronDown
                       size={15}
@@ -3402,7 +3403,14 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
                     />
                   </button>
                   {allergensOpen && (
-                    <p style={{ margin: '8px 0 0', fontSize: '12px', color: isLightMenu ? '#78350f' : '#FDE68A', lineHeight: 1.55 }}>
+                    <p
+                      style={{
+                        margin: '8px 0 0',
+                        fontSize: '12px',
+                        color: isEstore ? '#001c38' : isLightMenu ? '#78350f' : '#FDE68A',
+                        lineHeight: 1.55,
+                      }}
+                    >
                       {activeProduct.allergens}
                     </p>
                   )}
@@ -3419,7 +3427,7 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
                   <div style={{ marginBottom: '16px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                       <h4 style={{ margin: 0, fontSize: '14.5px', fontWeight: 900, color: 'var(--pm-ink)' }}>
-                        الحجم
+                        {isEstore ? 'السعة / الخيار' : 'الحجم'}
                       </h4>
                       <span
                         style={{
@@ -3544,8 +3552,10 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
                 return (
                   <div style={{ marginBottom: '16px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                      <h4 style={{ margin: 0, fontSize: '14.5px', fontWeight: 900, color: 'var(--pm-ink)' }}>إضافات</h4>
-                      {isToters && (
+                      <h4 style={{ margin: 0, fontSize: '14.5px', fontWeight: 900, color: 'var(--pm-ink)' }}>
+                        {isEstore ? 'ملحقات وإضافات' : 'إضافات'}
+                      </h4>
+                      {(isToters || isEstore) && (
                         <span
                           style={{
                             fontSize: '11px',
@@ -3589,17 +3599,17 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
                 );
               })()}
 
-              {/* Special Instructions Box ("أي تعليمات خاصة؟" — Toters style) */}
-              {isToters && (
+              {/* Special Instructions Box */}
+              {(isToters || isEstore) && (
                 <div style={{ marginBottom: '16px' }}>
                   <h4 style={{ margin: '0 0 8px', fontSize: '14.5px', fontWeight: 900, color: 'var(--pm-ink)' }}>
-                    أي تعليمات خاصة؟
+                    {isEstore ? 'ملاحظات الطلب أو التغليف' : 'أي تعليمات خاصة؟'}
                   </h4>
                   <textarea
                     rows={2}
                     value={modalItemNote}
                     onChange={(e) => setModalItemNote(e.target.value)}
-                    placeholder="اكتبها هنا"
+                    placeholder={isEstore ? 'أي ملاحظات أو طلب تغليف هدية؟' : 'اكتبها هنا'}
                     style={{
                       width: '100%',
                       resize: 'none',
@@ -4452,7 +4462,10 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
                         color: 'var(--pm-ink)',
                       }}
                     >
-                      <span>{addons.cutleryOption.label || 'أحتاج أدوات طعام ومناديل مع الطلب'}</span>
+                      <span>
+                        {addons.cutleryOption.label ||
+                          (isEstore ? 'أحتاج تغليف هدية / فاتورة مطبوعة' : 'أحتاج أدوات طعام ومناديل مع الطلب')}
+                      </span>
                       <input
                         type="checkbox"
                         checked={needCutlery}
@@ -5890,16 +5903,39 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
         </div>
       )}
 
-      {/* Mood Meal Finder Modal */}
+      {/* Mood Meal / Smart Store Finder Modal */}
       {moodModalOpen && addons.moodMealFinder?.enabled && (() => {
-        const moods: Array<{ id: 'fast' | 'light' | 'spicy' | 'sweet'; emoji: string; label: string; desc: string }> = [
-          { id: 'fast', emoji: '⚡', label: 'جوعان ومستعجل', desc: 'أطباق رئيسية سريعة التحضير' },
-          { id: 'light', emoji: '🥗', label: 'خفيف وصحي', desc: 'سعرات أخف واختيارات منعشة' },
-          { id: 'spicy', emoji: '🔥', label: 'نكهة قوية ومميزة', desc: 'مشويات ونكهات حارة ومميزة' },
-          { id: 'sweet', emoji: '🍰', label: 'شيء حلو ومزاج عالي', desc: 'حلويات ومشروبات ترفع المزاج' },
-        ];
+        const moods: Array<{ id: 'fast' | 'light' | 'spicy' | 'sweet'; emoji: string; label: string; desc: string }> = isEstore
+          ? [
+              { id: 'fast', emoji: '📱', label: 'هواتف وأجهزة رائدة', desc: 'أحدث الهواتف واللابتوبات الذكية' },
+              { id: 'light', emoji: '🎧', label: 'سماعات وصوتيات', desc: 'سماعات لاسلكية وصوت محيطي' },
+              { id: 'spicy', emoji: '⌚', label: 'ساعات وإكسسوارات', desc: 'ساعات ذكية وشواحن وكفرات' },
+              { id: 'sweet', emoji: '🎮', label: 'ألعاب وعروض قوية', desc: 'أجهزة ترفيه وتخفيضات مميزة' },
+            ]
+          : [
+              { id: 'fast', emoji: '⚡', label: 'جوعان ومستعجل', desc: 'أطباق رئيسية سريعة التحضير' },
+              { id: 'light', emoji: '🥗', label: 'خفيف وصحي', desc: 'سعرات أخف واختيارات منعشة' },
+              { id: 'spicy', emoji: '🔥', label: 'نكهة قوية ومميزة', desc: 'مشويات ونكهات حارة ومميزة' },
+              { id: 'sweet', emoji: '🍰', label: 'شيء حلو ومزاج عالي', desc: 'حلويات ومشروبات ترفع المزاج' },
+            ];
         const availablePool = allItems.filter((it) => itemEvalMap.get(it.id)?.available !== false);
         const picks = (() => {
+          if (isEstore) {
+            if (selectedMood === 'light') {
+              const matched = availablePool.filter((i) => /سماع|صوت|airpods|buds|headphone|speaker|audio/i.test(`${i.n} ${i.d || ''}`));
+              return (matched.length ? matched : availablePool).slice(0, 3);
+            }
+            if (selectedMood === 'spicy') {
+              const matched = availablePool.filter((i) => /ساع|شاحن|كفر|watch|cable|charger|case|mag/i.test(`${i.n} ${i.d || ''}`));
+              return (matched.length ? matched : availablePool).slice(0, 3);
+            }
+            if (selectedMood === 'sweet') {
+              const matched = availablePool.filter((i) => /لعب|بلاي|شاش|gaming|ps5|console|keyboard|خصم/i.test(`${i.n} ${i.d || ''}`));
+              return (matched.length ? matched : availablePool.slice(-3)).slice(0, 3);
+            }
+            const matched = availablePool.filter((i) => /هاتف|ايفون|سامسونج|لابتوب|ماك|ايباد|iphone|macbook|galaxy|ipad/i.test(`${i.n} ${i.d || ''}`));
+            return (matched.length ? matched : availablePool).slice(0, 3);
+          }
           if (selectedMood === 'light') {
             const matched = availablePool.filter((i) => /سلط|خفيف|مشوي|صحي|دايت|تونة|salad|grill|light|healthy/i.test(`${i.n} ${i.d || ''}`));
             return (matched.length ? matched : [...availablePool].sort((a, b) => (parseCaloriesNum(a.calories) || 9999) - (parseCaloriesNum(b.calories) || 9999))).slice(0, 3);
@@ -5919,7 +5955,8 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
             <div className="pm-sheet" style={{ padding: '20px' }} onClick={(e) => e.stopPropagation()}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                 <b style={{ fontSize: '17px', color: 'var(--pm-ink)' }}>
-                  {addons.moodMealFinder.title || 'اختر وجبتك حسب مزاجك الآن'}
+                  {addons.moodMealFinder.title ||
+                    (isEstore ? 'مستشار التسوق الذكي — اختر ما يناسب احتياجك' : 'اختر وجبتك حسب مزاجك الآن')}
                 </b>
                 <button
                   type="button"
@@ -5954,7 +5991,7 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
                 })}
               </div>
               <div style={{ fontSize: '12.5px', fontWeight: 800, color: accentText, marginBottom: '8px' }}>
-                ترشيحاتنا الذكية لمزاجك الآن:
+                {isEstore ? 'أفضل الترشيحات لطلبك الآن:' : 'ترشيحاتنا الذكية لمزاجك الآن:'}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {picks.map((it) => {
@@ -6012,6 +6049,7 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
         menuUrl={typeof window !== 'undefined' ? window.location.href : ''}
         description={rest.tagline}
         onCopied={showToast}
+        isStore={isEstore}
         palette={{
           bg: customBgColor,
           card: effectiveSurface,

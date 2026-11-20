@@ -23,6 +23,7 @@ export const QrPage: React.FC = () => {
   const {
     rest,
     resolvedPlan,
+    terms,
     liveMenuUrl,
     copyLink,
     openShareModal,
@@ -41,7 +42,7 @@ export const QrPage: React.FC = () => {
 
   const frameStyles: Array<{ id: QrFramePreset; label: string; desc: string }> = [
     { id: 'minimal', label: 'بسيط', desc: 'كود واضح وصافي' },
-    { id: 'table', label: 'كارت طاولة', desc: 'مع الاسم والوصف' },
+    { id: 'table', label: terms.isStore ? 'كارت معرض / كاشير' : 'كارت طاولة', desc: 'مع الاسم والوصف' },
     { id: 'classic', label: 'إطار كلاسيكي', desc: 'إطار مزدوج أنيق' },
     { id: 'badge', label: 'ستاند عصري', desc: 'شارة طلب سفليّة' },
   ];
@@ -99,12 +100,12 @@ export const QrPage: React.FC = () => {
             ميزة كود الـ QR معطلة في باقتك الحالية
           </h3>
           <p style={{ fontSize: '13px', color: 'var(--muted)', marginBottom: '18px', lineHeight: 1.6 }}>
-            {`يمكنك مشاركة رابط المنيو أو ترقية باقتك (${resolvedPlan.plan.n}) لتفعيل تصميم وطباعة QR Code.`}
+            {`يمكنك مشاركة رابط ${terms.isStore ? 'المتجر' : 'المنيو'} أو ترقية باقتك (${resolvedPlan.plan.n}) لتفعيل تصميم وطباعة QR Code.`}
           </p>
           <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button type="button" onClick={openShareModal} className="btn p" style={{ fontWeight: 800 }}>
               <Share2 size={15} />
-              <span>مشاركة المنيو</span>
+              <span>{terms.isStore ? 'مشاركة المتجر' : 'مشاركة المنيو'}</span>
             </button>
             <button type="button" onClick={() => copyLink(liveMenuUrl)} className="btn" style={{ fontWeight: 800 }}>
               <Copy size={15} />
@@ -136,7 +137,8 @@ export const QrPage: React.FC = () => {
               framePreset={framePreset}
               qrColor={qrColor || undefined}
               showLogo={showLogo}
-              onCopied={() => showToast('تم نسخ رابط المنيو ✓')}
+              isStore={terms.isStore}
+              onCopied={() => showToast(terms.isStore ? 'تم نسخ رابط المتجر ✓' : 'تم نسخ رابط المنيو ✓')}
             />
           </div>
 

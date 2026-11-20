@@ -34,6 +34,7 @@ interface ShareMenuModalProps {
   description?: string;
   onCopied?: (msg: string) => void;
   palette?: ShareMenuPalette;
+  isStore?: boolean;
 }
 
 export const ShareMenuModal: React.FC<ShareMenuModalProps> = ({
@@ -44,6 +45,7 @@ export const ShareMenuModal: React.FC<ShareMenuModalProps> = ({
   description,
   onCopied,
   palette,
+  isStore = false,
 }) => {
   const [copied, setCopied] = useState(false);
 
@@ -62,9 +64,11 @@ export const ShareMenuModal: React.FC<ShareMenuModalProps> = ({
   if (!isOpen) return null;
 
   const cleanUrl = (menuUrl || window.location.href).trim();
-  const title = (menuName || 'المنيو الإلكتروني').trim();
+  const title = (menuName || (isStore ? 'المتجر الإلكتروني' : 'المنيو الإلكتروني')).trim();
   const shareText = description?.trim()
     ? `${title} — ${description.trim()}`
+    : isStore
+    ? `تصفح متجر ${title} واطلب الآن بسهولة`
     : `تصفح منيو ${title} واطلب الآن بسهولة`;
 
   const encodedUrl = encodeURIComponent(cleanUrl);
@@ -78,7 +82,7 @@ export const ShareMenuModal: React.FC<ShareMenuModalProps> = ({
     const ok = await copyTextReliable(cleanUrl);
     if (ok) {
       setCopied(true);
-      onCopied?.('تم نسخ رابط المنيو للمشاركة ✓');
+      onCopied?.(isStore ? 'تم نسخ رابط المتجر للمشاركة ✓' : 'تم نسخ رابط المنيو للمشاركة ✓');
       setTimeout(() => setCopied(false), 2200);
     } else {
       onCopied?.('تعذر نسخ الرابط، انسخه يدوياً من المربع');
@@ -157,7 +161,7 @@ export const ShareMenuModal: React.FC<ShareMenuModalProps> = ({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="مشاركة المنيو"
+      aria-label={isStore ? 'مشاركة المتجر' : 'مشاركة المنيو'}
       onClick={onClose}
       style={{
         position: 'fixed',
@@ -224,7 +228,7 @@ export const ShareMenuModal: React.FC<ShareMenuModalProps> = ({
                   textOverflow: 'ellipsis',
                 }}
               >
-                {`مشاركة منيو ${title}`}
+                {isStore ? `مشاركة متجر ${title}` : `مشاركة منيو ${title}`}
               </h3>
               <p style={{ margin: '2px 0 0', fontSize: '12px', color: muted }}>
                 انسخ الرابط أو شاركه مباشرة عبر تطبيقات التواصل الاجتماعي
@@ -272,7 +276,7 @@ export const ShareMenuModal: React.FC<ShareMenuModalProps> = ({
             dir="ltr"
             value={cleanUrl}
             onFocus={(e) => e.currentTarget.select()}
-            aria-label="رابط المنيو"
+            aria-label={isStore ? 'رابط المتجر' : 'رابط المنيو'}
             style={{
               flex: 1,
               minWidth: 0,
@@ -400,7 +404,9 @@ export const ShareMenuModal: React.FC<ShareMenuModalProps> = ({
             border: `1px solid ${line}`,
           }}
         >
-          💡 لمشاركة المنيو في إنستقرام أو تيك توك أو سناب شات، اضغط على «نسخ الرابط» ثم الصقه في البايو أو ملصق الرابط في الستوري.
+          {isStore
+            ? '💡 لمشاركة المتجر في إنستقرام أو تيك توك أو سناب شات، اضغط على «نسخ الرابط» ثم الصقه في البايو أو ملصق الرابط في الستوري.'
+            : '💡 لمشاركة المنيو في إنستقرام أو تيك توك أو سناب شات، اضغط على «نسخ الرابط» ثم الصقه في البايو أو ملصق الرابط في الستوري.'}
         </div>
       </div>
     </div>

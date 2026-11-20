@@ -28,6 +28,7 @@ import {
   Send,
   Share2,
   SlidersHorizontal,
+  Sparkles,
   Store,
   Sun,
   Trash2,
@@ -140,6 +141,8 @@ export const SettingsPage: React.FC = () => {
     applyTimeToOpenDays,
     deliveryZonesState,
     setDeliveryZonesState,
+    terms,
+    handleSeedStoreCatalog,
   } = useDashboard();
 
   const [slugDraft, setSlugDraft] = useState(restSlug);
@@ -383,7 +386,13 @@ export const SettingsPage: React.FC = () => {
                   </div>
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontSize: '15px', fontWeight: 900, color: 'var(--ink)' }}>
-                      {restActive ? 'المنيو مفعّل ويستقبل الطلبات' : 'المنيو متوقف مؤقتاً'}
+                      {restActive
+                        ? terms.isStore
+                          ? 'المتجر مفعّل ويستقبل الطلبات'
+                          : 'المنيو مفعّل ويستقبل الطلبات'
+                        : terms.isStore
+                        ? 'المتجر متوقف مؤقتاً'
+                        : 'المنيو متوقف مؤقتاً'}
                     </div>
                     <div
                       style={{
@@ -404,7 +413,7 @@ export const SettingsPage: React.FC = () => {
                   type="button"
                   role="switch"
                   aria-checked={restActive}
-                  aria-label="حالة المنيو للزبائن"
+                  aria-label={terms.isStore ? 'حالة المتجر للزبائن' : 'حالة المنيو للزبائن'}
                   onClick={() => setRestActive((v) => !v)}
                   className={`ios-switch ${restActive ? 'on' : 'off'}`}
                 >
@@ -499,7 +508,7 @@ export const SettingsPage: React.FC = () => {
                         <Store size={16} />
                       </div>
                       <div>
-                        <div className="mp-set2-row-label">الحجز / الاستلام</div>
+                        <div className="mp-set2-row-label">{terms.isStore ? 'الاستلام من المعرض' : 'الحجز / الاستلام'}</div>
                         {!resolvedPlan.perms.pickupOrders && (
                           <div className="mp-set2-row-desc" style={{ color: '#f59e0b', fontWeight: 700 }}>
                             مقفل في باقتك الحالية
@@ -522,7 +531,7 @@ export const SettingsPage: React.FC = () => {
                         type="button"
                         role="switch"
                         aria-checked={allowPickup}
-                        aria-label="تفعيل الحجز والاستلام"
+                        aria-label={terms.isStore ? 'تفعيل الاستلام من المعرض' : 'تفعيل الحجز والاستلام'}
                         onClick={() => setAllowPickup((v) => !v)}
                         className={`ios-switch sm ${allowPickup ? 'on' : 'off'}`}
                       >
@@ -531,44 +540,46 @@ export const SettingsPage: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Table */}
-                  <div className="mp-set2-row">
-                    <div className="mp-set2-row-meta">
-                      <div className="mp-set2-mini-ico">
-                        <UtensilsCrossed size={16} />
+                  {/* Table (Restaurants only) */}
+                  {restProjectType !== 'store' && (
+                    <div className="mp-set2-row">
+                      <div className="mp-set2-row-meta">
+                        <div className="mp-set2-mini-ico">
+                          <UtensilsCrossed size={16} />
+                        </div>
+                        <div>
+                          <div className="mp-set2-row-label">طلبات الطاولات</div>
+                          {!resolvedPlan.perms.tableOrders && (
+                            <div className="mp-set2-row-desc" style={{ color: '#f59e0b', fontWeight: 700 }}>
+                              متاح في الباقة الاحترافية فأعلى
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <div>
-                        <div className="mp-set2-row-label">طلبات الطاولات</div>
-                        {!resolvedPlan.perms.tableOrders && (
-                          <div className="mp-set2-row-desc" style={{ color: '#f59e0b', fontWeight: 700 }}>
-                            متاح في الباقة الاحترافية فأعلى
-                          </div>
-                        )}
-                      </div>
+                      {!resolvedPlan.perms.tableOrders ? (
+                        <button
+                          type="button"
+                          className="btn s"
+                          onClick={() => openUpgradeModal('pro')}
+                          style={{ color: '#f59e0b', fontSize: '12px', fontWeight: 800 }}
+                        >
+                          <Lock size={13} />
+                          <span>ترقية</span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={allowTable}
+                          aria-label="تفعيل طلبات الطاولات"
+                          onClick={() => setAllowTable((v) => !v)}
+                          className={`ios-switch sm ${allowTable ? 'on' : 'off'}`}
+                        >
+                          <span className="ios-switch-thumb" />
+                        </button>
+                      )}
                     </div>
-                    {!resolvedPlan.perms.tableOrders ? (
-                      <button
-                        type="button"
-                        className="btn s"
-                        onClick={() => openUpgradeModal('pro')}
-                        style={{ color: '#f59e0b', fontSize: '12px', fontWeight: 800 }}
-                      >
-                        <Lock size={13} />
-                        <span>ترقية</span>
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        role="switch"
-                        aria-checked={allowTable}
-                        aria-label="تفعيل طلبات الطاولات"
-                        onClick={() => setAllowTable((v) => !v)}
-                        className={`ios-switch sm ${allowTable ? 'on' : 'off'}`}
-                      >
-                        <span className="ios-switch-thumb" />
-                      </button>
-                    )}
-                  </div>
+                  )}
 
                   {/* Pre-orders when closed */}
                   <div className="mp-set2-row">
@@ -600,7 +611,9 @@ export const SettingsPage: React.FC = () => {
                 <div className="mp-set2-panel-head">
                   <div>
                     <h2 className="mp-set2-panel-title">قناة وصول الطلبات</h2>
-                    <p className="mp-set2-panel-sub">حدد أين تصلك طلبات الزبائن مباشرة من المنيو</p>
+                    <p className="mp-set2-panel-sub">
+                      {terms.isStore ? 'حدد أين تصلك طلبات الزبائن مباشرة من المتجر' : 'حدد أين تصلك طلبات الزبائن مباشرة من المنيو'}
+                    </p>
                   </div>
                 </div>
 
@@ -1152,7 +1165,7 @@ export const SettingsPage: React.FC = () => {
                   <div
                     style={{
                       marginTop: '10px',
-                      padding: '10px 12px',
+                      padding: '12px 14px',
                       borderRadius: '12px',
                       background: 'color-mix(in srgb, #f15a29 10%, var(--surface))',
                       border: '1px solid color-mix(in srgb, #f15a29 30%, var(--line))',
@@ -1160,9 +1173,25 @@ export const SettingsPage: React.FC = () => {
                       fontWeight: 700,
                       color: 'var(--ink)',
                       lineHeight: 1.6,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '10px',
+                      flexWrap: 'wrap',
                     }}
                   >
-                    تم تفعيل مظهر المتجر الإلكتروني الموحّد تلقائياً لمتجرك، مع إمكانية تعديل الأقسام والمنتجات والأسعار والشعار بالكامل.
+                    <span>
+                      تم تفعيل مظهر المتجر الإلكتروني الموحّد تلقائياً لمتجرك، مع إمكانية تعديل الأقسام والمنتجات والأسعار والشعار بالكامل.
+                    </span>
+                    <button
+                      type="button"
+                      className="btn p s"
+                      onClick={() => handleSeedStoreCatalog('append_missing')}
+                      style={{ fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                    >
+                      <Sparkles size={13} />
+                      <span>إضافة أقسام ومنتجات المتجر الافتراضية</span>
+                    </button>
                   </div>
                 )}
 
@@ -1184,7 +1213,7 @@ export const SettingsPage: React.FC = () => {
                       type="text"
                       value={restTagline}
                       onChange={(e) => setRestTagline(e.target.value)}
-                      placeholder="مثال: برجر سماش طازج • بطاطا مقرمشة"
+                      placeholder={terms.isStore ? 'مثال: أحدث الأجهزة الإلكترونية والإكسسوارات بضمان رسمي' : 'مثال: برجر سماش طازج • بطاطا مقرمشة'}
                       style={themedInputStyle}
                     />
                   </label>
@@ -1202,12 +1231,12 @@ export const SettingsPage: React.FC = () => {
                 </label>
 
                 <label className="f" style={{ marginBottom: 0 }}>
-                  ملاحظة الضريبة أو الفاتورة أسفل المنيو
+                  {terms.isStore ? 'ملاحظة الضريبة أو الضمان أسفل المتجر' : 'ملاحظة الضريبة أو الفاتورة أسفل المنيو'}
                   <input
                     type="text"
                     value={taxNoteInput}
                     onChange={(e) => setTaxNoteInput(e.target.value)}
-                    placeholder="مثال: جميع الأسعار شاملة الضريبة"
+                    placeholder={terms.isStore ? 'مثال: جميع الأسعار شاملة الضمان الرسمي' : 'مثال: جميع الأسعار شاملة الضريبة'}
                     style={themedInputStyle}
                   />
                 </label>
@@ -1221,7 +1250,9 @@ export const SettingsPage: React.FC = () => {
                       <ImageIcon size={16} style={{ color: 'var(--brand-ink, #34D399)' }} />
                       <span>الشعار وصورة الغلاف</span>
                     </h2>
-                    <p className="mp-set2-panel-sub">تظهر أعلى المنيو الإلكتروني أمام الزبائن</p>
+                    <p className="mp-set2-panel-sub">
+                      {terms.isStore ? 'تظهر أعلى المتجر الإلكتروني أمام الزبائن' : 'تظهر أعلى المنيو الإلكتروني أمام الزبائن'}
+                    </p>
                   </div>
                 </div>
 
@@ -1250,7 +1281,7 @@ export const SettingsPage: React.FC = () => {
                         {logoUrlInput ? (
                           <img
                             src={logoUrlInput}
-                            alt="شعار المنيو"
+                            alt={terms.isStore ? 'شعار المتجر' : 'شعار المنيو'}
                             referrerPolicy="no-referrer"
                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                           />
@@ -1336,7 +1367,7 @@ export const SettingsPage: React.FC = () => {
                       {coverUrlInput ? (
                         <img
                           src={coverUrlInput}
-                          alt="بانر المنيو"
+                          alt={terms.isStore ? 'بانر المتجر' : 'بانر المنيو'}
                           referrerPolicy="no-referrer"
                           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         />
@@ -1530,11 +1561,19 @@ export const SettingsPage: React.FC = () => {
                   <div>
                     <h2 className="mp-set2-panel-title">
                       <Globe size={16} style={{ color: 'var(--brand-ink, #34D399)' }} />
-                      <span>{subdomainEnabled ? 'الدومين الفرعي والرابط المخصص' : 'رابط المنيو المخصص'}</span>
+                      <span>
+                        {subdomainEnabled
+                          ? 'الدومين الفرعي والرابط المخصص'
+                          : terms.isStore
+                          ? 'رابط المتجر المخصص'
+                          : 'رابط المنيو المخصص'}
+                      </span>
                     </h2>
                     <p className="mp-set2-panel-sub">
                       {!resolvedPlan.perms.customSlug
-                        ? 'رابط منيو مشروعك الحالي بالكود التلقائي'
+                        ? terms.isStore
+                          ? 'رابط متجر مشروعك الحالي بالكود التلقائي'
+                          : 'رابط منيو مشروعك الحالي بالكود التلقائي'
                         : `اختر اسماً إنجليزياً فريداً لمشروعك (${baseDomain}/user)`}
                     </p>
                   </div>
@@ -1591,10 +1630,10 @@ export const SettingsPage: React.FC = () => {
                       <input
                         type="text"
                         dir="ltr"
-                        aria-label="رابط المنيو المخصص"
+                        aria-label={terms.isStore ? 'رابط المتجر المخصص' : 'رابط المنيو المخصص'}
                         value={slugDraft}
                         onChange={(e) => handleSlugTyping(e.target.value)}
-                        placeholder="your-restaurant"
+                        placeholder={terms.isStore ? 'your-store' : 'your-restaurant'}
                         style={{
                           border: 0,
                           background: 'transparent',
