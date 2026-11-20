@@ -240,7 +240,10 @@ export const HomePage: React.FC = () => {
 
       {/* Checklist Section: transparent & borderless */}
       <section className="mp-home-section">
-        <div className="mp-home-section-head">
+        <div
+          className="mp-home-section-head"
+          style={allTipsCompleted ? { marginBottom: 0 } : undefined}
+        >
           <span
             className="mp-home-section-badge"
             style={{
@@ -274,47 +277,49 @@ export const HomePage: React.FC = () => {
           </motion.p>
         </div>
 
-        <div className="mp-home-tips-box" dir="rtl">
-          <div className="mp-home-tips-list">
-            {orderedTips.map((tip, idx) => (
-              <motion.button
-                key={tip.id}
-                type="button"
-                onClick={() => {
-                  if (tip.targetTab === 'set' && tip.settingsSection) {
-                    openSettingsSection(tip.settingsSection);
-                  } else {
-                    setActiveTab(tip.targetTab);
-                  }
-                }}
-                className={`btn s mp-home-tip-btn ${tip.done ? 'is-done' : ''}`}
-                dir="rtl"
-                initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.1 }}
-                transition={{
-                  duration: 0.75,
-                  delay: prefersReducedMotion ? 0 : Math.min(idx * 0.06, 0.35),
-                  ease: [0.16, 1, 0.3, 1],
-                }}
-              >
-                <span className="mp-home-tip-icon" aria-hidden="true">
-                  {tip.done ? (
-                    <CheckCircle2 size={18} style={{ color: '#10b981' }} />
-                  ) : (
-                    <Sparkles size={18} style={{ color: '#f59e0b' }} />
+        {!allTipsCompleted && (
+          <div className="mp-home-tips-box" dir="rtl">
+            <div className="mp-home-tips-list">
+              {orderedTips.map((tip, idx) => (
+                <motion.button
+                  key={tip.id}
+                  type="button"
+                  onClick={() => {
+                    if (tip.targetTab === 'set' && tip.settingsSection) {
+                      openSettingsSection(tip.settingsSection);
+                    } else {
+                      setActiveTab(tip.targetTab);
+                    }
+                  }}
+                  className={`btn s mp-home-tip-btn ${tip.done ? 'is-done' : ''}`}
+                  dir="rtl"
+                  initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.1 }}
+                  transition={{
+                    duration: 0.75,
+                    delay: prefersReducedMotion ? 0 : Math.min(idx * 0.06, 0.35),
+                    ease: [0.16, 1, 0.3, 1],
+                  }}
+                >
+                  <span className="mp-home-tip-icon" aria-hidden="true">
+                    {tip.done ? (
+                      <CheckCircle2 size={18} style={{ color: '#10b981' }} />
+                    ) : (
+                      <Sparkles size={18} style={{ color: '#f59e0b' }} />
+                    )}
+                  </span>
+
+                  <span className="mp-home-tip-label">{tip.label}</span>
+
+                  {!tip.done && (
+                    <ArrowUpRight size={15} className="mp-home-tip-arrow" aria-hidden="true" />
                   )}
-                </span>
-
-                <span className="mp-home-tip-label">{tip.label}</span>
-
-                {!tip.done && (
-                  <ArrowUpRight size={15} className="mp-home-tip-arrow" aria-hidden="true" />
-                )}
-              </motion.button>
-            ))}
+                </motion.button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </section>
     </div>
   );
