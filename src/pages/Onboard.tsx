@@ -594,10 +594,11 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
         coverImages: finalCover,
         tagline: tagline.trim(),
         aboutText: aboutText.trim(),
-        themeMode: menuThemeMode,
-        themePreset: menuThemeMode === 'dark' ? 'dark-obsidian' : 'clean-light',
-        color: menuColor,
-        lay: menuLayout,
+        themeMode: isStore ? 'light' : menuThemeMode,
+        themePreset: isStore ? 'estore' : menuThemeMode === 'dark' ? 'dark-obsidian' : 'clean-light',
+        themeShape: isStore ? 'estore' : 'modern',
+        color: isStore ? '#f15a29' : menuColor,
+        lay: isStore ? 'grid4' : menuLayout,
         done: 1,
         on: 1,
       });
@@ -611,9 +612,11 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
         coverImages: finalCover,
         tagline: tagline.trim(),
         aboutText: aboutText.trim(),
-        themeMode: menuThemeMode,
-        color: menuColor,
-        lay: menuLayout,
+        themeMode: isStore ? 'light' : menuThemeMode,
+        themePreset: isStore ? 'estore' : menuThemeMode === 'dark' ? 'dark-obsidian' : 'clean-light',
+        themeShape: isStore ? 'estore' : 'modern',
+        color: isStore ? '#f15a29' : menuColor,
+        lay: isStore ? 'grid4' : menuLayout,
         done: 1,
         on: 1,
       }).catch(() => {});
@@ -2051,81 +2054,100 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({
                 />
               </div>
 
-              {/* فاتح أو غامق */}
-              <div>
-                <label style={{ display: 'block', fontSize: '13.5px', fontWeight: 800, marginBottom: '8px' }}>
-                  مظهر المنيو للزبائن (فاتح أو غامق)
-                </label>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                  <button
-                    type="button"
-                    onClick={() => setMenuThemeMode('light')}
-                    style={{
-                      padding: '14px',
-                      borderRadius: '14px',
-                      border: menuThemeMode === 'light' ? '2px solid var(--brand)' : '1px solid var(--line)',
-                      background: menuThemeMode === 'light' ? 'var(--soft)' : 'var(--bg)',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px',
-                      fontWeight: 800,
-                      fontSize: '14px',
-                      color: 'var(--ink)',
-                    }}
-                  >
-                    <Sun size={18} />
-                    <span>مظهر فاتح (Light)</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setMenuThemeMode('dark')}
-                    style={{
-                      padding: '14px',
-                      borderRadius: '14px',
-                      border: menuThemeMode === 'dark' ? '2px solid var(--brand)' : '1px solid var(--line)',
-                      background: menuThemeMode === 'dark' ? 'var(--soft)' : 'var(--bg)',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px',
-                      fontWeight: 800,
-                      fontSize: '14px',
-                      color: 'var(--ink)',
-                    }}
-                  >
-                    <Moon size={18} />
-                    <span>مظهر غامق (Dark)</span>
-                  </button>
+              {isStore ? (
+                <div
+                  style={{
+                    padding: '14px',
+                    borderRadius: '14px',
+                    background: 'color-mix(in srgb, #f15a29 10%, var(--surface))',
+                    border: '1px solid color-mix(in srgb, #f15a29 30%, var(--line))',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    color: 'var(--ink)',
+                    lineHeight: 1.65,
+                  }}
+                >
+                  تم تفعيل مظهر المتجر الإلكتروني الموحّد تلقائياً لمتجرك ✓ يمكنك حفظ الوصف أدناه أو تعديل الأقسام والمنتجات بحرية.
                 </div>
-              </div>
+              ) : (
+                <>
+                  {/* فاتح أو غامق */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13.5px', fontWeight: 800, marginBottom: '8px' }}>
+                      مظهر المنيو للزبائن (فاتح أو غامق)
+                    </label>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                      <button
+                        type="button"
+                        onClick={() => setMenuThemeMode('light')}
+                        style={{
+                          padding: '14px',
+                          borderRadius: '14px',
+                          border: menuThemeMode === 'light' ? '2px solid var(--brand)' : '1px solid var(--line)',
+                          background: menuThemeMode === 'light' ? 'var(--soft)' : 'var(--bg)',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          fontWeight: 800,
+                          fontSize: '14px',
+                          color: 'var(--ink)',
+                        }}
+                      >
+                        <Sun size={18} />
+                        <span>مظهر فاتح (Light)</span>
+                      </button>
 
-              {/* طريقة عرض العناصر */}
-              <div>
-                <label style={{ display: 'block', fontSize: '13.5px', fontWeight: 800, marginBottom: '8px' }}>
-                  شكل عرض العناصر
-                </label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-                  {[
-                    { id: 'list' as const, label: 'قائمة مرتبة' },
-                    { id: 'grid' as const, label: 'شبكة مزدوجة' },
-                    { id: 'cards' as const, label: 'بطاقات كبيرة' },
-                  ].map((opt) => (
-                    <button
-                      key={opt.id}
-                      type="button"
-                      className={`btn s${menuLayout === opt.id ? ' p' : ''}`}
-                      onClick={() => setMenuLayout(opt.id)}
-                      style={{ justifyContent: 'center', fontWeight: 700 }}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
+                      <button
+                        type="button"
+                        onClick={() => setMenuThemeMode('dark')}
+                        style={{
+                          padding: '14px',
+                          borderRadius: '14px',
+                          border: menuThemeMode === 'dark' ? '2px solid var(--brand)' : '1px solid var(--line)',
+                          background: menuThemeMode === 'dark' ? 'var(--soft)' : 'var(--bg)',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          fontWeight: 800,
+                          fontSize: '14px',
+                          color: 'var(--ink)',
+                        }}
+                      >
+                        <Moon size={18} />
+                        <span>مظهر غامق (Dark)</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* طريقة عرض العناصر */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13.5px', fontWeight: 800, marginBottom: '8px' }}>
+                      شكل عرض العناصر
+                    </label>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                      {[
+                        { id: 'list' as const, label: 'قائمة مرتبة' },
+                        { id: 'grid' as const, label: 'شبكة مزدوجة' },
+                        { id: 'cards' as const, label: 'بطاقات كبيرة' },
+                      ].map((opt) => (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          className={`btn s${menuLayout === opt.id ? ' p' : ''}`}
+                          onClick={() => setMenuLayout(opt.id)}
+                          style={{ justifyContent: 'center', fontWeight: 700 }}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
 
               <button
                 type="button"

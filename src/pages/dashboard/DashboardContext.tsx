@@ -85,7 +85,7 @@ import {
   isReservedSlug,
   sanitizeSlug,
 } from '../../utils/businessDefaults';
-import { getBusinessTerms } from '../../utils/terminology';
+import { getBusinessTerms, isStoreProject } from '../../utils/terminology';
 import {
   DEFAULT_AVAILABILITY_SCHEDULE,
   normalizeAvailabilitySchedule,
@@ -971,28 +971,41 @@ function useDashboardController({
   const [dashboardThemeMode, setDashboardThemeMode] = useState<'dark' | 'light' | 'auto'>(() =>
     resolveDashboardPref(rest)
   );
-  const normalizeShapeChoice = (raw?: string): MenuThemeShape =>
-    raw === 'toters' ||
-    raw === 'glass' ||
-    raw === 'cartoon' ||
-    raw === 'dreamy' ||
-    raw === 'pill' ||
-    raw === 'sharp' ||
-    raw === 'bordered' ||
-    raw === 'soft' ||
-    raw === 'ramadan' ||
-    raw === 'eid' ||
-    raw === 'newyear'
+  const isInitialStore = isStoreProject(rest.projectType);
+  const normalizeShapeChoice = (raw?: string, storeFlag = isInitialStore): MenuThemeShape => {
+    if (storeFlag) return 'estore';
+    return raw === 'toters' ||
+      raw === 'glass' ||
+      raw === 'cartoon' ||
+      raw === 'dreamy' ||
+      raw === 'pill' ||
+      raw === 'sharp' ||
+      raw === 'bordered' ||
+      raw === 'soft' ||
+      raw === 'ramadan' ||
+      raw === 'eid' ||
+      raw === 'newyear'
       ? raw
       : 'modern';
+  };
   const [menuThemePreset, setMenuThemePreset] = useState<string>(() =>
-    rest.themePreset || (rest.themeMode === 'dark' ? 'emerald-dark' : 'clean-light')
+    isInitialStore
+      ? 'estore'
+      : rest.themePreset && rest.themePreset !== 'estore'
+      ? rest.themePreset
+      : rest.themeMode === 'dark'
+      ? 'emerald-dark'
+      : 'clean-light'
   );
   const [menuThemeShape, setMenuThemeShape] = useState<MenuThemeShape>(() =>
-    normalizeShapeChoice(rest.themeShape)
+    normalizeShapeChoice(rest.themeShape, isInitialStore)
   );
-  const [restColor, setRestColor] = useState<string>(() => rest.color || '#059669');
-  const [restBgColor, setRestBgColor] = useState<string>(() => rest.bgColor || '');
+  const [restColor, setRestColor] = useState<string>(() =>
+    isInitialStore ? '#f15a29' : rest.color || '#059669'
+  );
+  const [restBgColor, setRestBgColor] = useState<string>(() =>
+    isInitialStore ? '' : rest.bgColor || ''
+  );
   const [coverUrlInput, setCoverUrlInput] = useState(rest.coverImages?.[0] || '');
   const [logoUrlInput, setLogoUrlInput] = useState(rest.logo || '');
   const [aboutTextInput, setAboutTextInput] = useState(rest.aboutText || '');
@@ -1013,8 +1026,8 @@ function useDashboardController({
   const [orderFilter, setOrderFilter] = useState<'all' | 'new' | 'completed'>('all');
 
   // SETTINGS STATE
-  const [restProjectType, setRestProjectType] = useState<'restaurant' | 'store'>(
-    (rest.projectType as any) === 'store' ? 'store' : 'restaurant'
+  const [restProjectType, setRestProjectTypeRaw] = useState<'restaurant' | 'store'>(
+    isInitialStore ? 'store' : 'restaurant'
   );
   const [restName, setRestName] = useState(rest.n || '');
   const [restTagline, setRestTagline] = useState(rest.tagline || '');
@@ -1068,11 +1081,17 @@ function useDashboardController({
     bgColor: string;
   }>({
     lay: isLayoutAllowed(normalizeLayoutChoice(rest.lay)) ? normalizeLayoutChoice(rest.lay) : 'list',
-    themeMode: rest.themeMode === 'dark' || rest.themeMode === 'auto' ? rest.themeMode : 'light',
-    themePreset: rest.themePreset || (rest.themeMode === 'dark' ? 'emerald-dark' : 'clean-light'),
-    themeShape: normalizeShapeChoice(rest.themeShape),
-    color: rest.color || '#059669',
-    bgColor: rest.bgColor || '',
+    themeMode: isInitialStore ? 'light' : rest.themeMode === 'dark' || rest.themeMode === 'auto' ? rest.themeMode : 'light',
+    themePreset: isInitialStore
+      ? 'estore'
+      : rest.themePreset && rest.themePreset !== 'estore'
+      ? rest.themePreset
+      : rest.themeMode === 'dark'
+      ? 'emerald-dark'
+      : 'clean-light',
+    themeShape: normalizeShapeChoice(rest.themeShape, isInitialStore),
+    color: isInitialStore ? '#f15a29' : rest.color || '#059669',
+    bgColor: isInitialStore ? '' : rest.bgColor || '',
   });
 
   const buildSettingsDigestFromValues = (vals: {
@@ -1134,18 +1153,29 @@ function useDashboardController({
     if (syncedRestRef.current === sig) return;
     syncedRestRef.current = sig;
     syncedRidRef.current = rid;
+    const nextProjectType: 'restaurant' | 'store' =
+      isStoreProject(rest.projectType) ? 'store' : 'restaurant';
+    const nextIsStore = nextProjectType === 'store';
     if (colorSyncTimerRef.current === null) {
       const candidateLay = normalizeLayoutChoice(rest.lay);
-      const safeLay = isLayoutAllowed(candidateLay) ? candidateLay : 'list';
-      const safeMode: 'dark' | 'light' | 'auto' =
-        rest.themeMode === 'dark' || rest.themeMode === 'auto' ? rest.themeMode : 'light';
-      const safePreset =
-        rest.themePreset === 'custom'
-          ? 'custom'
-          : rest.themePreset || (safeMode === 'dark' ? 'emerald-dark' : 'clean-light');
-      const safeShape = normalizeShapeChoice(rest.themeShape);
-      const safeColor = rest.color || '#059669';
-      const safeBg = rest.bgColor || '';
+      const safeLay = nextIsStore ? 'grid4' : isLayoutAllowed(candidateLay) ? candidateLay : 'list';
+      const safeMode: 'dark' | 'light' | 'auto' = nextIsStore
+        ? 'light'
+        : rest.themeMode === 'dark' || rest.themeMode === 'auto'
+        ? rest.themeMode
+        : 'light';
+      const safePreset = nextIsStore
+        ? 'estore'
+        : rest.themePreset === 'custom'
+        ? 'custom'
+        : rest.themePreset && rest.themePreset !== 'estore'
+        ? rest.themePreset
+        : safeMode === 'dark'
+        ? 'emerald-dark'
+        : 'clean-light';
+      const safeShape = normalizeShapeChoice(rest.themeShape, nextIsStore);
+      const safeColor = nextIsStore ? '#f15a29' : rest.color || '#059669';
+      const safeBg = nextIsStore ? '' : rest.bgColor || '';
       appearanceDraftRef.current = {
         lay: safeLay,
         themeMode: safeMode,
@@ -1161,8 +1191,6 @@ function useDashboardController({
       setRestColor(safeColor);
       setRestBgColor(safeBg);
     }
-    const nextProjectType: 'restaurant' | 'store' =
-      (rest.projectType as any) === 'store' ? 'store' : 'restaurant';
     const nextCover = rest.coverImages?.[0] || '';
     const nextLogo = rest.logo || '';
     const nextAbout = rest.aboutText || '';
@@ -1234,7 +1262,7 @@ function useDashboardController({
     setTaxNoteInput(nextTax);
     setRestSlug(nextSlug);
     setSlugCheckState({ checking: false, available: null, message: '' });
-    setRestProjectType(nextProjectType);
+    setRestProjectTypeRaw(nextProjectType);
     setRestName(nextName);
     setRestTagline(nextTagline);
     setRestCurrency(nextCurrency);
@@ -2574,15 +2602,16 @@ function useDashboardController({
       colorSyncTimerRef.current = null;
     }
     const latestRest = getItem<Restaurant>(`restaurants/${rid}`) || rest;
-    const isCustom = merged.themePreset === 'custom' && resolvedPlan.perms.customColors;
+    const isStore = restProjectType === 'store' || isStoreProject(latestRest.projectType);
+    const isCustom = !isStore && merged.themePreset === 'custom' && resolvedPlan.perms.customColors;
     const nextPayload: Restaurant = {
       ...latestRest,
-      lay: merged.lay,
-      themeMode: merged.themeMode,
-      themePreset: merged.themePreset,
-      themeShape: merged.themeShape,
-      color: merged.color,
-      bgColor: isCustom ? (merged.bgColor.trim() || undefined) : undefined,
+      lay: isStore ? 'grid4' : merged.lay,
+      themeMode: isStore ? 'light' : merged.themeMode,
+      themePreset: isStore ? 'estore' : merged.themePreset,
+      themeShape: isStore ? 'estore' : merged.themeShape,
+      color: isStore ? '#f15a29' : merged.color,
+      bgColor: isStore ? undefined : isCustom ? (merged.bgColor.trim() || undefined) : undefined,
     };
     syncedRestRef.current = buildRestSignature(ensureRestaurantDefaults(nextPayload), rid);
     await putItemAndSync<Restaurant>(`restaurants/${rid}`, nextPayload);
@@ -2850,20 +2879,24 @@ function useDashboardController({
       });
 
     const mergedApp = appearanceDraftRef.current;
-    const isCustomTheme = mergedApp.themePreset === 'custom' && resolvedPlan.perms.customColors;
-    const chosenTheme = getMenuThemeById(isCustomTheme ? undefined : mergedApp.themePreset, mergedApp.themeMode);
+    const isStore = restProjectType === 'store';
+    const isCustomTheme = !isStore && mergedApp.themePreset === 'custom' && resolvedPlan.perms.customColors;
+    const chosenTheme = getMenuThemeById(
+      isStore ? 'estore' : isCustomTheme ? undefined : mergedApp.themePreset,
+      isStore ? 'light' : mergedApp.themeMode
+    );
     const firstOpenDay = WEEK_DAYS_ORDER.map((d) => weeklyHours[d.key]).find((d) => d?.open);
 
     return {
       ...latestRest,
       projectType: restProjectType,
-      lay: isLayoutAllowed(mergedApp.lay) ? mergedApp.lay : 'list',
-      themeMode: mergedApp.themeMode,
+      lay: isStore ? 'grid4' : isLayoutAllowed(mergedApp.lay) ? mergedApp.lay : 'list',
+      themeMode: isStore ? 'light' : mergedApp.themeMode,
       ...(latestRest.dashboardThemeMode ? { dashboardThemeMode } : {}),
-      themePreset: isCustomTheme ? 'custom' : chosenTheme.id,
-      themeShape: mergedApp.themeShape,
-      color: isCustomTheme ? (mergedApp.color.trim() || chosenTheme.brand) : chosenTheme.brand,
-      bgColor: isCustomTheme ? (mergedApp.bgColor.trim() || undefined) : undefined,
+      themePreset: isStore ? 'estore' : isCustomTheme ? 'custom' : chosenTheme.id,
+      themeShape: isStore ? 'estore' : mergedApp.themeShape,
+      color: isStore ? '#f15a29' : isCustomTheme ? (mergedApp.color.trim() || chosenTheme.brand) : chosenTheme.brand,
+      bgColor: isStore ? undefined : isCustomTheme ? (mergedApp.bgColor.trim() || undefined) : undefined,
       n: restName.trim() || latestRest.n,
       tagline: restTagline.trim(),
       aboutText: aboutTextInput.trim(),
@@ -2991,6 +3024,46 @@ function useDashboardController({
       }
     };
   }, [currentSettingsDigest]);
+
+  const setRestProjectType = (nextType: 'restaurant' | 'store') => {
+    setRestProjectTypeRaw(nextType);
+    if (nextType === 'store') {
+      appearanceDraftRef.current = {
+        ...appearanceDraftRef.current,
+        lay: 'grid4',
+        themeMode: 'light',
+        themePreset: 'estore',
+        themeShape: 'estore',
+        color: '#f15a29',
+        bgColor: '',
+      };
+      setSelectedLayout('grid4');
+      setMenuThemeMode('light');
+      setMenuThemePreset('estore');
+      setMenuThemeShape('estore');
+      setRestColor('#f15a29');
+      setRestBgColor('');
+    } else if (
+      appearanceDraftRef.current.themePreset === 'estore' ||
+      appearanceDraftRef.current.themeShape === 'estore'
+    ) {
+      appearanceDraftRef.current = {
+        ...appearanceDraftRef.current,
+        lay: 'list',
+        themeMode: 'light',
+        themePreset: 'clean-light',
+        themeShape: 'modern',
+        color: '#0F766E',
+        bgColor: '',
+      };
+      setSelectedLayout('list');
+      setMenuThemeMode('light');
+      setMenuThemePreset('clean-light');
+      setMenuThemeShape('modern');
+      setRestColor('#0F766E');
+      setRestBgColor('');
+    }
+  };
 
   const handleSaveSettings = () => {
     const cleanSlug = sanitizeSlug(restSlug);

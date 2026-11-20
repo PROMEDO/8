@@ -238,46 +238,41 @@ export const HomePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Checklist Section: transparent & borderless */}
-      <section className="mp-home-section">
-        <div
-          className="mp-home-section-head"
-          style={allTipsCompleted ? { marginBottom: 0 } : undefined}
-        >
-          <span
-            className="mp-home-section-badge"
-            style={{
-              background: allTipsCompleted ? 'rgba(16, 185, 129, 0.14)' : 'rgba(245, 158, 11, 0.14)',
-              color: allTipsCompleted ? '#10b981' : '#f59e0b',
-            }}
-          >
-            {allTipsCompleted ? <CheckCircle2 size={15} /> : <Lightbulb size={15} />}
-            <span>{`نسبة الاكتمال: ${readinessPercent}%`}</span>
-          </span>
+      {/* Checklist Section: hidden once all steps are completed */}
+      {!allTipsCompleted && (
+        <section className="mp-home-section">
+          <div className="mp-home-section-head">
+            <span
+              className="mp-home-section-badge"
+              style={{
+                background: 'rgba(245, 158, 11, 0.14)',
+                color: '#f59e0b',
+              }}
+            >
+              <Lightbulb size={15} />
+              <span>{`نسبة الاكتمال: ${readinessPercent}%`}</span>
+            </span>
 
-          <h2 className="mp-home-section-title">
-            <Ml7Text
-              text="خطوات استكمال جاهزية المنيو 💡"
-              mode="mount"
-              delay={0.08}
-              stagger={0.12}
-              isRtl
-            />
-          </h2>
+            <h2 className="mp-home-section-title">
+              <Ml7Text
+                text="خطوات استكمال جاهزية المنيو 💡"
+                mode="mount"
+                delay={0.08}
+                stagger={0.12}
+                isRtl
+              />
+            </h2>
 
-          <motion.p
-            className="mp-home-section-sub"
-            initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          >
-            {allTipsCompleted
-              ? 'جميع خطوات جاهزية المنيو مكتملة وجاهزة لاستقبال طلبات الزبائن.'
-              : 'أكمل الخطوات التالية ليكون منيوك جاهزاً لاستقبال الطلبات بأفضل شكل:'}
-          </motion.p>
-        </div>
+            <motion.p
+              className="mp-home-section-sub"
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            >
+              أكمل الخطوات التالية ليكون منيوك جاهزاً لاستقبال الطلبات بأفضل شكل:
+            </motion.p>
+          </div>
 
-        {!allTipsCompleted && (
           <div className="mp-home-tips-box" dir="rtl">
             <div className="mp-home-tips-list">
               {orderedTips.map((tip, idx) => (
@@ -319,8 +314,8 @@ export const HomePage: React.FC = () => {
               ))}
             </div>
           </div>
-        )}
-      </section>
+        </section>
+      )}
     </div>
   );
 };

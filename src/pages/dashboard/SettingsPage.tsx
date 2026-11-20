@@ -1148,6 +1148,24 @@ export const SettingsPage: React.FC = () => {
                   </button>
                 </div>
 
+                {restProjectType === 'store' && (
+                  <div
+                    style={{
+                      marginTop: '10px',
+                      padding: '10px 12px',
+                      borderRadius: '12px',
+                      background: 'color-mix(in srgb, #f15a29 10%, var(--surface))',
+                      border: '1px solid color-mix(in srgb, #f15a29 30%, var(--line))',
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      color: 'var(--ink)',
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    تم تفعيل مظهر المتجر الإلكتروني الموحّد تلقائياً لمتجرك، مع إمكانية تعديل الأقسام والمنتجات والأسعار والشعار بالكامل.
+                  </div>
+                )}
+
                 <div className="mp-set2-grid-2">
                   <label className="f" style={{ marginBottom: 0 }}>
                     اسم المشروع *
@@ -1386,58 +1404,62 @@ export const SettingsPage: React.FC = () => {
               {/* Theme Appearance Modes */}
               <div className="mp-set2-panel">
                 <div className="mp-set2-panel-head">
-                  <h2 className="mp-set2-panel-title">مظهر العرض للزبون واللوحة</h2>
+                  <h2 className="mp-set2-panel-title">
+                    {restProjectType === 'store' ? 'مظهر لوحة التحكم' : 'مظهر العرض للزبون واللوحة'}
+                  </h2>
                 </div>
 
                 <div className="mp-set2-list">
-                  {/* Menu Theme Mode */}
-                  <div className="mp-set2-row">
-                    <div className="mp-set2-row-meta">
-                      <div className="mp-set2-mini-ico">
-                        {menuThemeMode === 'light' ? (
-                          <Sun size={16} />
-                        ) : menuThemeMode === 'auto' ? (
-                          <Monitor size={16} />
-                        ) : (
-                          <Moon size={16} />
-                        )}
+                  {/* Menu Theme Mode (Restaurants only — Store uses unified white/navy/orange storefront theme) */}
+                  {restProjectType !== 'store' && (
+                    <div className="mp-set2-row">
+                      <div className="mp-set2-row-meta">
+                        <div className="mp-set2-mini-ico">
+                          {menuThemeMode === 'light' ? (
+                            <Sun size={16} />
+                          ) : menuThemeMode === 'auto' ? (
+                            <Monitor size={16} />
+                          ) : (
+                            <Moon size={16} />
+                          )}
+                        </div>
+                        <div>
+                          <div className="mp-set2-row-label">مظهر المنيو</div>
+                          <div className="mp-set2-row-desc">فاتح أو غامق للزبون</div>
+                        </div>
                       </div>
-                      <div>
-                        <div className="mp-set2-row-label">مظهر المنيو</div>
-                        <div className="mp-set2-row-desc">فاتح أو غامق للزبون</div>
-                      </div>
-                    </div>
 
-                    <div className="mp-theme-icon-switch" role="group" aria-label="مظهر المنيو">
-                      <button
-                        type="button"
-                        onClick={() => handleSelectThemeMode('light')}
-                        className={`mp-theme-icon-btn${menuThemeMode === 'light' ? ' is-active' : ''}`}
-                        aria-label="الوضع الفاتح"
-                        title="فاتح"
-                      >
-                        <Sun size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleSelectThemeMode('dark')}
-                        className={`mp-theme-icon-btn${menuThemeMode === 'dark' ? ' is-active' : ''}`}
-                        aria-label="الوضع الغامق"
-                        title="غامق"
-                      >
-                        <Moon size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleSelectThemeMode('auto')}
-                        className={`mp-theme-icon-btn${menuThemeMode === 'auto' ? ' is-active' : ''}`}
-                        aria-label="تلقائي حسب جهاز الزبون"
-                        title="تلقائي"
-                      >
-                        <Monitor size={16} />
-                      </button>
+                      <div className="mp-theme-icon-switch" role="group" aria-label="مظهر المنيو">
+                        <button
+                          type="button"
+                          onClick={() => handleSelectThemeMode('light')}
+                          className={`mp-theme-icon-btn${menuThemeMode === 'light' ? ' is-active' : ''}`}
+                          aria-label="الوضع الفاتح"
+                          title="فاتح"
+                        >
+                          <Sun size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleSelectThemeMode('dark')}
+                          className={`mp-theme-icon-btn${menuThemeMode === 'dark' ? ' is-active' : ''}`}
+                          aria-label="الوضع الغامق"
+                          title="غامق"
+                        >
+                          <Moon size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleSelectThemeMode('auto')}
+                          className={`mp-theme-icon-btn${menuThemeMode === 'auto' ? ' is-active' : ''}`}
+                          aria-label="تلقائي حسب جهاز الزبون"
+                          title="تلقائي"
+                        >
+                          <Monitor size={16} />
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Dashboard Theme Mode */}
                   <div className="mp-set2-row">

@@ -71,6 +71,7 @@ import { ensureRestaurantDefaults } from '../utils/businessDefaults';
 import { getBusinessTerms } from '../utils/terminology';
 import { AppLogo } from '../components/AppLogo';
 import { ShareMenuModal } from '../components/ShareMenuModal';
+import { EstoreStorefront } from '../components/storefront/EstoreStorefront';
 import { SeasonalHeroRibbon, SeasonalMenuOverlay } from '../components/SeasonalMenuDecor';
 import {
   ActiveMenuDiscount,
@@ -317,78 +318,93 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
     pickup: { label: terms.pickupLabel, icon: <Store size={15} /> },
     table: { label: terms.dineInOrBranchNote, icon: <Utensils size={15} /> },
   };
-  const activeTheme = getMenuThemeById(rest?.themePreset, rest?.themeMode);
-  const activeShape: MenuThemeShape =
-    rest?.themeShape === 'toters' ||
-    rest?.themeShape === 'glass' ||
-    rest?.themeShape === 'cartoon' ||
-    rest?.themeShape === 'dreamy' ||
-    rest?.themeShape === 'pill' ||
-    rest?.themeShape === 'sharp' ||
-    rest?.themeShape === 'bordered' ||
-    rest?.themeShape === 'soft' ||
-    rest?.themeShape === 'ramadan' ||
-    rest?.themeShape === 'eid' ||
-    rest?.themeShape === 'newyear'
-      ? rest.themeShape
-      : 'modern';
-  const isToters = activeShape === 'toters';
-  const isCustomPreset = rest?.themePreset === 'custom' && resolvedPlan.perms.customColors;
+  const isEstore = terms.isStore;
+  const activeTheme = getMenuThemeById(
+    isEstore ? 'estore' : rest?.themePreset,
+    isEstore ? 'light' : rest?.themeMode
+  );
+  const activeShape: MenuThemeShape = isEstore
+    ? 'estore'
+    : rest?.themeShape === 'toters' ||
+      rest?.themeShape === 'glass' ||
+      rest?.themeShape === 'cartoon' ||
+      rest?.themeShape === 'dreamy' ||
+      rest?.themeShape === 'pill' ||
+      rest?.themeShape === 'sharp' ||
+      rest?.themeShape === 'bordered' ||
+      rest?.themeShape === 'soft' ||
+      rest?.themeShape === 'ramadan' ||
+      rest?.themeShape === 'eid' ||
+      rest?.themeShape === 'newyear'
+    ? rest.themeShape
+    : 'modern';
+  const isToters = !isEstore && activeShape === 'toters';
+  const isCustomPreset = !isEstore && rest?.themePreset === 'custom' && resolvedPlan.perms.customColors;
   const hasKnownPreset = Boolean(
+    !isEstore &&
     rest?.themePreset &&
     rest.themePreset !== 'custom' &&
     MENU_THEMES.some((t) => t.id === rest.themePreset)
   );
   const currency = String(rest?.currency || 'د.ع').trim();
-  const brandColor = isCustomPreset
+  const brandColor = isEstore
+    ? '#f15a29'
+    : isCustomPreset
     ? (rest?.color || activeTheme.brand)
     : hasKnownPreset
     ? activeTheme.brand
     : (resolvedPlan.perms.customColors && rest?.color ? rest.color : activeTheme.brand);
-  const customBgColor =
-    isCustomPreset && rest?.bgColor
-      ? rest.bgColor
-      : rest?.themeMode === 'auto'
-      ? activeTheme.bg
-      : resolvedPlan.perms.customColors && rest?.bgColor
-      ? rest.bgColor
-      : activeTheme.bg;
-  const isLightMenu =
-    isCustomPreset && rest?.bgColor
-      ? getContrastInk(rest.bgColor) === '#0f172a'
-      : activeTheme.mode === 'light';
-  const effectiveSurface =
-    isCustomPreset && rest?.bgColor
-      ? isLightMenu
-        ? `color-mix(in srgb, ${customBgColor} 35%, #ffffff)`
-        : `color-mix(in srgb, ${customBgColor} 80%, #ffffff)`
-      : activeTheme.surface;
-  const effectiveSurfaceSoft =
-    isCustomPreset && rest?.bgColor
-      ? isLightMenu
-        ? `color-mix(in srgb, ${customBgColor} 88%, #0f172a)`
-        : `color-mix(in srgb, ${customBgColor} 88%, #ffffff)`
-      : activeTheme.surfaceSoft;
-  const effectiveInk =
-    isCustomPreset && rest?.bgColor
-      ? isLightMenu
-        ? '#0f172a'
-        : '#f8fafc'
-      : activeTheme.text;
-  const effectiveMuted =
-    isCustomPreset && rest?.bgColor
-      ? isLightMenu
-        ? '#475569'
-        : '#94a3b8'
-      : activeTheme.muted;
-  const effectiveLine =
-    isCustomPreset && rest?.bgColor
-      ? isLightMenu
-        ? 'rgba(15, 23, 42, 0.14)'
-        : 'rgba(255, 255, 255, 0.15)'
-      : activeTheme.line;
-  const accentText = isLightMenu ? brandColor : getReadableAccent(brandColor);
-  const brandInk = getContrastInk(brandColor);
+  const customBgColor = isEstore
+    ? '#ffffff'
+    : isCustomPreset && rest?.bgColor
+    ? rest.bgColor
+    : rest?.themeMode === 'auto'
+    ? activeTheme.bg
+    : resolvedPlan.perms.customColors && rest?.bgColor
+    ? rest.bgColor
+    : activeTheme.bg;
+  const isLightMenu = isEstore
+    ? true
+    : isCustomPreset && rest?.bgColor
+    ? getContrastInk(rest.bgColor) === '#0f172a'
+    : activeTheme.mode === 'light';
+  const effectiveSurface = isEstore
+    ? '#ffffff'
+    : isCustomPreset && rest?.bgColor
+    ? isLightMenu
+      ? `color-mix(in srgb, ${customBgColor} 35%, #ffffff)`
+      : `color-mix(in srgb, ${customBgColor} 80%, #ffffff)`
+    : activeTheme.surface;
+  const effectiveSurfaceSoft = isEstore
+    ? '#f5f7f9'
+    : isCustomPreset && rest?.bgColor
+    ? isLightMenu
+      ? `color-mix(in srgb, ${customBgColor} 88%, #0f172a)`
+      : `color-mix(in srgb, ${customBgColor} 88%, #ffffff)`
+    : activeTheme.surfaceSoft;
+  const effectiveInk = isEstore
+    ? '#001c38'
+    : isCustomPreset && rest?.bgColor
+    ? isLightMenu
+      ? '#0f172a'
+      : '#f8fafc'
+    : activeTheme.text;
+  const effectiveMuted = isEstore
+    ? '#667483'
+    : isCustomPreset && rest?.bgColor
+    ? isLightMenu
+      ? '#475569'
+      : '#94a3b8'
+    : activeTheme.muted;
+  const effectiveLine = isEstore
+    ? '#e5e9ed'
+    : isCustomPreset && rest?.bgColor
+    ? isLightMenu
+      ? 'rgba(15, 23, 42, 0.14)'
+      : 'rgba(255, 255, 255, 0.15)'
+    : activeTheme.line;
+  const accentText = isEstore ? '#f15a29' : isLightMenu ? brandColor : getReadableAccent(brandColor);
+  const brandInk = isEstore ? '#ffffff' : getContrastInk(brandColor);
 
   const rawAddons = rest?.addons || {};
   const addons = useMemo<RestaurantAddons>(() => {
@@ -659,6 +675,7 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
 
   // Active category tracking
   const [activeCatId, setActiveCatId] = useState<string>('');
+  const [estoreCatFilter, setEstoreCatFilter] = useState<string>('all');
 
   // Auto-update active category highlight on scroll and bring active chip into view without scrolling the whole page
   useEffect(() => {
@@ -903,10 +920,12 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
     return (
       <div className="wz" dir="rtl" style={{ textAlign: 'center', padding: '60px 20px' }}>
         <h1 style={{ fontSize: '26px', marginBottom: '10px' }}>
-          المنيو غير متاح
+          {isEstore ? 'المتجر غير متاح' : 'المنيو غير متاح'}
         </h1>
         <p className="muted" style={{ marginBottom: '20px' }}>
-          هذا المنيو غير موجود أو موقوف حالياً من قِبل الإدارة.
+          {isEstore
+            ? 'هذا المتجر غير موجود أو موقوف حالياً من قِبل الإدارة.'
+            : 'هذا المنيو غير موجود أو موقوف حالياً من قِبل الإدارة.'}
         </p>
         <button type="button" className="btn p" onClick={() => onNavigate('/')}>
           العودة للرئيسية
@@ -1646,8 +1665,9 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
 
   return (
     <div
-      className={`pm-page ${isLightMenu ? 'pm-light' : ''}`}
+      className={`pm-page ${isLightMenu ? 'pm-light' : ''} ${isEstore ? 'pm-estore-page' : ''}`}
       data-shape={activeShape}
+      data-storefront={isEstore ? 'estore' : undefined}
       dir="rtl"
       style={{
         '--pm-brand': brandColor,
@@ -1663,7 +1683,7 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
         color: effectiveInk,
       } as React.CSSProperties}
     >
-      <SeasonalMenuOverlay shape={activeShape} isLight={isLightMenu} />
+      {!isEstore && <SeasonalMenuOverlay shape={activeShape} isLight={isLightMenu} />}
       {/* Announcement Bar Addon */}
       {addons.announcementBar?.enabled && addons.announcementBar.text && (
         <div
@@ -1762,7 +1782,66 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
         </div>
       )}
 
-      {isToters ? (
+      {isEstore ? (
+        <EstoreStorefront
+          rest={rest}
+          currency={currency}
+          allCategories={allCategories}
+          allItems={allItems}
+          categoryEvalMap={categoryEvalMap}
+          itemEvalMap={itemEvalMap}
+          getPriceInfo={(it) =>
+            getPriceDisplay(it, currency, activeMenuDiscount, resolvedPlan.perms.itemDiscounts)
+          }
+          formatMoney={fmtMoney}
+          activeMenuDiscount={activeMenuDiscount}
+          addons={addons}
+          countdownDisplay={countdownDisplay}
+          coverImages={coverImages}
+          bannerIdx={bannerIdx}
+          setBannerIdx={setBannerIdx}
+          openNow={openNow}
+          orderType={orderType}
+          enabledTypes={enabledTypes}
+          orderTypeMeta={ORDER_TYPE_META}
+          hasMultipleBranches={hasMultipleBranches}
+          branchShortLabel={branchShortLabel}
+          onOpenBranchPicker={onOpenBranchPicker}
+          totalCount={totalCount}
+          subtotal={subtotal}
+          freeDeliveryEnabled={freeDeliveryEnabled}
+          freeDeliveryMin={freeDeliveryMin}
+          freeDeliveryRemaining={freeDeliveryRemaining}
+          freeDeliveryPct={freeDeliveryPct}
+          qualifiesFreeDelivery={qualifiesFreeDelivery}
+          getItemCartQty={getItemCartQty}
+          openProductModal={openProductModal}
+          quickAddOrOpenModal={quickAddOrOpenModal}
+          decrementItemFromCart={decrementItemFromCart}
+          openCart={() => {
+            setCheckoutStep('cart');
+            setCartOpen(true);
+          }}
+          openMenuDrawer={() => setMenuDrawerOpen(true)}
+          openCatsModal={() => setCatsModalOpen(true)}
+          openOrderTypeModal={() => setOrderTypeModalOpen(true)}
+          openWorkModal={() => setWorkModalOpen(true)}
+          openAboutModal={() => setAboutModalOpen(true)}
+          openRateModal={() => setRateModalOpen(true)}
+          openShareModal={handleShareMenu}
+          openMoodModal={() => setMoodModalOpen(true)}
+          openSpinModal={() => setSpinModalOpen(true)}
+          spinWonLabel={spinWonReward?.label || null}
+          reviewsShowOnMenu={reviewsShowOnMenu}
+          reviewsAllowSubmit={reviewsAllowSubmit}
+          restaurantReviews={restaurantReviews}
+          onNavigate={onNavigate}
+          selectedCatId={estoreCatFilter}
+          onSelectCatId={setEstoreCatFilter}
+        />
+      ) : (
+        <>
+          {isToters ? (
         <>
           {/* TOTERS FULL-BLEED COVER HERO + FLOATING STORE CARD */}
           <div className="pm-toters-hero-wrap">
@@ -3162,6 +3241,8 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
           </div>
         </div>
       )}
+        </>
+      )}
 
       {/* ================================================================
           MODAL 1: PRODUCT DETAIL SHEET (Sizes, Choices, Extras, Allergens)
@@ -3196,7 +3277,7 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
                     color: 'var(--pm-muted)',
                   }}
                 >
-                  <Utensils size={40} />
+                  {isEstore ? <ShoppingBag size={40} /> : <Utensils size={40} />}
                 </div>
               )}
 
@@ -3728,7 +3809,7 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
                 <p style={{ margin: '0 0 18px', fontSize: '13.5px', color: 'var(--pm-muted)' }}>
                   {lastOrderSummary.channel === 'telegram' || !lastOrderSummary.waUrl
                     ? 'تم تسجيل طلبك وإرساله مباشرة إلى المتجر وتيليجرام بنجاح.'
-                    : 'تم تسجيل طلبك في لوحة تحكم المطعم، ويمكنك إعادة فتح رسالة الواتساب في أي وقت.'}
+                    : `تم تسجيل طلبك في لوحة تحكم ${isEstore ? 'المتجر' : 'المطعم'}، ويمكنك إعادة فتح رسالة الواتساب في أي وقت.`}
                 </p>
 
                 <div
@@ -3822,7 +3903,7 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
                     }}
                   >
                     <Car size={19} />
-                    <span>وصلت أمام المطعم 🚗</span>
+                    <span>{isEstore ? 'وصلت أمام المتجر 🚗' : 'وصلت أمام المطعم 🚗'}</span>
                   </a>
                 )}
 
@@ -3840,14 +3921,18 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
                     cursor: 'pointer',
                   }}
                 >
-                  العودة لقائمة الطعام
+                  {isEstore ? 'العودة للمتجر' : 'العودة لقائمة الطعام'}
                 </button>
               </div>
             ) : cart.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '48px 18px', color: 'var(--pm-muted)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
                 <ShoppingBag size={40} style={{ opacity: 0.55 }} />
                 <p style={{ margin: 0, fontWeight: 800, fontSize: '15px', color: 'var(--pm-ink)' }}>سلتك فارغة حالياً</p>
-                <p style={{ margin: 0, fontSize: '13px', color: 'var(--pm-muted)' }}>أضف أطباقك المفضلة من المنيو وسنحتفظ بها هنا أثناء تصفحك.</p>
+                <p style={{ margin: 0, fontSize: '13px', color: 'var(--pm-muted)' }}>
+                  {isEstore
+                    ? 'أضف منتجاتك المفضلة من المتجر وسنحتفظ بها هنا أثناء تصفحك.'
+                    : 'أضف أطباقك المفضلة من المنيو وسنحتفظ بها هنا أثناء تصفحك.'}
+                </p>
                 <button
                   type="button"
                   onClick={() => setCartOpen(false)}
@@ -3863,7 +3948,7 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
                     cursor: 'pointer',
                   }}
                 >
-                  تصفح المنيو
+                  {isEstore ? 'تصفح المتجر' : 'تصفح المنيو'}
                 </button>
               </div>
             ) : checkoutStep === 'cart' ? (
@@ -4045,6 +4130,8 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
                               <div className="pm-toters-cart-thumb">
                                 {line.img ? (
                                   <img src={line.img} alt={line.name} referrerPolicy="no-referrer" />
+                                ) : isEstore ? (
+                                  <ShoppingBag size={18} style={{ color: 'var(--pm-muted)' }} />
                                 ) : (
                                   <Utensils size={18} style={{ color: 'var(--pm-muted)' }} />
                                 )}
@@ -5042,7 +5129,7 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
                 onClick={handleShareMenu}
               >
                 <span style={{ fontWeight: 800, fontSize: '14.5px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                  <Share2 size={16} /> مشاركة المنيو
+                  <Share2 size={16} /> {isEstore ? 'مشاركة المتجر' : 'مشاركة المنيو'}
                 </span>
                 <ChevronLeft size={16} />
               </button>
@@ -5216,8 +5303,13 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
                   className="pm-option-row"
                   onClick={() => {
                     setActiveCatId(c.id);
+                    if (isEstore) {
+                      setEstoreCatFilter(c.id);
+                    }
                     setCatsModalOpen(false);
-                    document.getElementById(`mc-${c.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    window.setTimeout(() => {
+                      document.getElementById(`mc-${c.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 40);
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -5268,7 +5360,7 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
                 type="search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="ابحث عن وجبة أو مشروب..."
+                placeholder={isEstore ? 'ابحث عن منتج...' : 'ابحث عن وجبة أو مشروب...'}
                 autoFocus
                 style={{ flex: 1 }}
               />
@@ -5286,11 +5378,11 @@ const PublicMenuContent: React.FC<PublicMenuContentProps> = ({
 
             {!searchQuery.trim() ? (
               <p style={{ textAlign: 'center', color: 'var(--pm-muted)', marginTop: '40px' }}>
-                اكتب اسم الطبق لعرض النتائج فوراً...
+                {isEstore ? 'اكتب اسم المنتج لعرض النتائج فوراً...' : 'اكتب اسم الطبق لعرض النتائج فوراً...'}
               </p>
             ) : searchResults.length === 0 ? (
               <p style={{ textAlign: 'center', color: 'var(--pm-muted)', marginTop: '40px' }}>
-                لا توجد أصناف مطابقة لـ "{searchQuery}"
+                {isEstore ? `لا توجد منتجات مطابقة لـ "${searchQuery}"` : `لا توجد أصناف مطابقة لـ "${searchQuery}"`}
               </p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

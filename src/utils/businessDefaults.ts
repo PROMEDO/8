@@ -50,18 +50,37 @@ export function getDefaultBusinessMedia(projectType?: string): {
 
 export function ensureRestaurantDefaults<T extends Partial<Restaurant>>(r: T): T {
   if (!r) return r;
+  const isStore = isStoreProject(r.projectType);
   const def = getDefaultBusinessMedia(r.projectType);
   const existingCovers = Array.isArray(r.coverImages)
     ? r.coverImages.filter((u) => typeof u === 'string' && u.trim().length > 0)
     : [];
-  const resolvedMode: 'dark' | 'light' | 'auto' =
-    r.themeMode === 'dark' ? 'dark' : r.themeMode === 'auto' ? 'auto' : 'light';
-  const resolvedPreset = r.themePreset || (resolvedMode === 'dark' ? 'emerald-dark' : 'clean-light');
+  const resolvedMode: 'dark' | 'light' | 'auto' = isStore
+    ? 'light'
+    : r.themeMode === 'dark'
+    ? 'dark'
+    : r.themeMode === 'auto'
+    ? 'auto'
+    : 'light';
+  const resolvedPreset = isStore
+    ? 'estore'
+    : r.themePreset && r.themePreset !== 'estore'
+    ? r.themePreset
+    : resolvedMode === 'dark'
+    ? 'emerald-dark'
+    : 'clean-light';
+  const resolvedShape = isStore
+    ? 'estore'
+    : r.themeShape && r.themeShape !== ('estore' as any)
+    ? r.themeShape
+    : 'modern';
 
   return {
     ...r,
     themeMode: resolvedMode,
     themePreset: resolvedPreset,
+    themeShape: resolvedShape,
+    ...(isStore ? { color: '#f15a29', bgColor: undefined } : {}),
     logo: r.logo && String(r.logo).trim() ? r.logo : def.logo,
     coverImages: existingCovers.length > 0 ? existingCovers : [def.banner],
     tagline: r.tagline && String(r.tagline).trim() ? r.tagline : def.tagline,

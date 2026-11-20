@@ -1060,6 +1060,12 @@ app.post('/api/onboard/profile', async (req, res) => {
     if (body.themeMode === 'light' || body.themeMode === 'dark' || body.themeMode === 'auto') {
       nextRest.themeMode = body.themeMode;
     }
+    if (typeof body.themePreset === 'string' && body.themePreset.trim()) {
+      nextRest.themePreset = body.themePreset.trim().slice(0, 48);
+    }
+    if (typeof body.themeShape === 'string' && body.themeShape.trim()) {
+      nextRest.themeShape = body.themeShape.trim().slice(0, 32);
+    }
     if (typeof body.color === 'string' && /^#[0-9a-f]{3,8}$/i.test(body.color.trim())) {
       nextRest.color = body.color.trim();
     }
@@ -1071,6 +1077,13 @@ app.post('/api/onboard/profile', async (req, res) => {
       body.lay === 'cards'
     ) {
       nextRest.lay = body.lay;
+    }
+    if (nextRest.projectType === 'store') {
+      nextRest.themeMode = 'light';
+      nextRest.themePreset = 'estore';
+      nextRest.themeShape = 'estore';
+      nextRest.color = '#f15a29';
+      delete nextRest.bgColor;
     }
     if (body.h && typeof body.h === 'object' && !Array.isArray(body.h)) {
       nextRest.h = body.h;

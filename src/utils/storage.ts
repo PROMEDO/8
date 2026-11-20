@@ -11,6 +11,8 @@ import {
   FontTypographyConfig,
   HomeSettings,
   MenuItem,
+  MenuLayout,
+  MenuThemeShape,
   PricingPlan,
   Restaurant,
   RestaurantHours,
@@ -2711,8 +2713,10 @@ export async function saveOnboardProfileToServer(payload: {
   tagline?: string;
   aboutText?: string;
   themeMode?: 'light' | 'dark';
+  themePreset?: string;
+  themeShape?: MenuThemeShape;
   color?: string;
-  lay?: 'list' | 'grid' | 'cards';
+  lay?: MenuLayout;
   h?: Restaurant['h'];
   done?: number;
   on?: number;

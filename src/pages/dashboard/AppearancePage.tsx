@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { motion, useReducedMotion } from 'motion/react';
-import { Palette, RotateCcw, Shapes } from 'lucide-react';
+import { CheckCircle2, Eye, Layers, Palette, RotateCcw, Shapes, ShoppingBag, Store } from 'lucide-react';
 import {
   MENU_SHAPES,
   MENU_THEMES,
@@ -33,7 +33,161 @@ export const AppearancePage: React.FC = () => {
     restBgColor,
     handleInstantLayoutSelect,
     openUpgradeModal,
+    restProjectType,
+    terms,
+    setActiveTab,
+    openSettingsSection,
+    onNavigate,
+    publicPath,
+    restName,
+    allCategories,
+    allItems,
   } = useDashboard();
+
+  const isStore = terms.isStore || restProjectType === 'store';
+
+  if (isStore) {
+    return (
+      <div className="mp-appearance-page">
+        <motion.section
+          className="mp-appearance-section mp-estore-appearance-card"
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <div className="mp-estore-appearance-head">
+            <div className="mp-estore-appearance-badge">
+              <CheckCircle2 size={15} />
+              <span>المظهر الأساسي المفعّل لمتجرك</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => onNavigate(publicPath)}
+              className="btn p s"
+              style={{ fontWeight: 800, gap: '6px' }}
+            >
+              <Eye size={15} />
+              <span>معاينة المتجر مباشرة</span>
+            </button>
+          </div>
+
+          <div className="mp-estore-appearance-hero">
+            <div className="mp-estore-appearance-copy">
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                <span className="mp-estore-appearance-ico">
+                  <Store size={18} />
+                </span>
+                <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--brand-ink, #f15a29)' }}>
+                  مظهر المتجر الإلكتروني الموحد
+                </span>
+              </div>
+              <h2 className="mp-appearance-section-title" style={{ marginBottom: '8px', fontSize: '20px' }}>
+                واجهة متجر احترافية موحّدة لـ {restName || 'متجرك'}
+              </h2>
+              <p style={{ margin: '0 0 14px', fontSize: '13px', color: 'var(--muted)', lineHeight: 1.7 }}>
+                تم تفعيل تصميم المتاجر الإلكتروني الموحد تلقائياً لمتجرك (هيدر أبيض ونظيف مع بحث فوري، ألوان الكحلي الداكن والبرتقالي، شبكة تسوق حسب الفئة، بطاقات منتجات مع نسب الخصم وسلة جانبية ذكية). يتم عرض جميع الأقسام والمنتجات والأسعار والهوية الخاصة بك مباشرة دون أي إعدادات معقدة.
+              </p>
+
+              <div className="mp-estore-swatches" aria-label="لوحة ألوان المتجر">
+                <span className="mp-estore-swatch">
+                  <i style={{ background: '#001c38' }} />
+                  <span>كحلي رئيسي</span>
+                </span>
+                <span className="mp-estore-swatch">
+                  <i style={{ background: '#f15a29' }} />
+                  <span>برتقالي المتجر</span>
+                </span>
+                <span className="mp-estore-swatch">
+                  <i style={{ background: '#ffffff', border: '1px solid #cbd5e1' }} />
+                  <span>خلفية بيضاء نظيفة</span>
+                </span>
+                <span className="mp-estore-swatch">
+                  <i style={{ background: '#f5f7f9', border: '1px solid #cbd5e1' }} />
+                  <span>أسطح العرض</span>
+                </span>
+              </div>
+            </div>
+
+            {/* Live Visual Mini-Mockup matching estore layout */}
+            <div className="mp-estore-preview-frame" aria-hidden="true">
+              <div className="mp-estore-preview-nav">
+                <span className="mp-estore-preview-logo" />
+                <span className="mp-estore-preview-search">
+                  <i />
+                </span>
+                <span className="mp-estore-preview-cart" />
+              </div>
+              <div className="mp-estore-preview-cats">
+                <span className="is-active" />
+                <span />
+                <span />
+                <span />
+              </div>
+              <div className="mp-estore-preview-banner">
+                <div>
+                  <span className="line-lg" />
+                  <span className="line-sm" />
+                </div>
+                <span className="cta-dot" />
+              </div>
+              <div className="mp-estore-preview-grid">
+                {[0, 1, 2, 3].map((idx) => (
+                  <div key={idx} className="mp-estore-preview-card">
+                    <div className="thumb">
+                      {idx === 0 && <span className="disc">-20%</span>}
+                    </div>
+                    <div className="meta">
+                      <span className="t1" />
+                      <div className="bottom">
+                        <span className="price" />
+                        <span className="btn-sq" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mp-estore-quick-actions">
+            <button
+              type="button"
+              onClick={() => setActiveTab('cats')}
+              className="mp-estore-quick-btn"
+            >
+              <Layers size={18} />
+              <div>
+                <b>إدارة أقسام المتجر ({allCategories.length})</b>
+                <span>إضافة وتعديل وترتيب الأقسام وصورها</span>
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('menu')}
+              className="mp-estore-quick-btn"
+            >
+              <ShoppingBag size={18} />
+              <div>
+                <b>إدارة المنتجات والأسعار ({allItems.length})</b>
+                <span>إضافة منتجات، صور، خصومات وخيارات</span>
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={() => openSettingsSection('identity')}
+              className="mp-estore-quick-btn"
+            >
+              <Store size={18} />
+              <div>
+                <b>هوية المتجر والشعار والغلاف</b>
+                <span>تحديث الاسم والوصف والبنر الرئيسي</span>
+              </div>
+            </button>
+          </div>
+        </motion.section>
+      </div>
+    );
+  }
 
   const allowedThemes = getAllowedThemesForPlan(resolvedPlan);
   const previewMode = resolveMenuThemeEffectiveMode(menuThemeMode);
@@ -195,7 +349,7 @@ export const AppearancePage: React.FC = () => {
         </motion.div>
 
         <div className="mp-appearance-themes-grid">
-          {MENU_THEMES.filter((t) => !t.seasonal).map((theme, idx) => {
+          {MENU_THEMES.filter((t) => !t.seasonal && !t.storeOnly).map((theme, idx) => {
             const isUnlocked = allowedThemes.some((t) => t.id === theme.id);
             const isSelected = menuThemePreset === theme.id;
             const pal = previewMode === 'dark' ? theme.darkPalette : theme.lightPalette;

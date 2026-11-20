@@ -24,6 +24,7 @@ export interface MenuThemeDefinition extends MenuThemePalette {
   subtitle: string;
   category?: 'classic' | 'girly' | 'cyber' | 'seasonal';
   seasonal?: boolean;
+  storeOnly?: boolean;
   mode: 'dark' | 'light';
   minTierIndex: number; // 0-1 = Starter (4), 2 = Pro (7), 3 = VIP (all 10)
   lightPalette: MenuThemePalette;
@@ -621,6 +622,43 @@ export const MENU_THEMES: MenuThemeDefinition[] = [
       text: '#0f172a',
       muted: '#475569',
       line: 'rgba(29, 78, 216, 0.22)',
+    },
+  },
+  {
+    id: 'estore',
+    name: 'مظهر المتجر الموحد',
+    subtitle: 'تصميم متاجر إلكترونية متكامل باللون الكحلي والبرتقالي وخلفية بيضاء نظيفة',
+    category: 'classic',
+    storeOnly: true,
+    mode: 'light',
+    brand: '#f15a29',
+    accent: '#fb5a1f',
+    bg: '#ffffff',
+    surface: '#ffffff',
+    surfaceSoft: '#f5f7f9',
+    text: '#001c38',
+    muted: '#667483',
+    line: '#e5e9ed',
+    minTierIndex: 0,
+    lightPalette: {
+      brand: '#f15a29',
+      accent: '#fb5a1f',
+      bg: '#ffffff',
+      surface: '#ffffff',
+      surfaceSoft: '#f5f7f9',
+      text: '#001c38',
+      muted: '#667483',
+      line: '#e5e9ed',
+    },
+    darkPalette: {
+      brand: '#f15a29',
+      accent: '#fb5a1f',
+      bg: '#ffffff',
+      surface: '#ffffff',
+      surfaceSoft: '#f5f7f9',
+      text: '#001c38',
+      muted: '#667483',
+      line: '#e5e9ed',
     },
   },
 ];
@@ -1327,13 +1365,14 @@ export function getAddonRequiredPlanLabel(addonKey: AddonKey | string): string {
 }
 
 export function getAllowedThemesForPlan(resolved: ResolvedPlanInfo): MenuThemeDefinition[] {
+  const restaurantThemes = MENU_THEMES.filter((t) => !t.storeOnly);
   if (resolved.maxThemes === -1 || resolved.perms.customColors) {
-    return MENU_THEMES;
+    return restaurantThemes;
   }
   const limit = Math.max(2, resolved.maxThemes || 2);
-  const regular = MENU_THEMES.filter((t) => !t.seasonal && t.id !== 'toters').slice(0, limit);
-  const totersTheme = MENU_THEMES.filter((t) => t.id === 'toters');
-  const seasonal = MENU_THEMES.filter((t) => t.seasonal);
+  const regular = restaurantThemes.filter((t) => !t.seasonal && t.id !== 'toters').slice(0, limit);
+  const totersTheme = restaurantThemes.filter((t) => t.id === 'toters');
+  const seasonal = restaurantThemes.filter((t) => t.seasonal);
   return [...regular, ...totersTheme, ...seasonal];
 }
 
@@ -1373,11 +1412,19 @@ export function resolveMenuThemeEffectiveMode(mode?: 'dark' | 'light' | 'auto'):
 }
 
 export function getMenuThemeById(presetId?: string, mode?: 'dark' | 'light' | 'auto'): MenuThemeDefinition {
+  if (presetId === 'estore') {
+    const estoreTheme = MENU_THEMES.find((t) => t.id === 'estore')!;
+    return {
+      ...estoreTheme,
+      ...estoreTheme.lightPalette,
+      mode: 'light',
+    };
+  }
   const effectiveMode: 'dark' | 'light' | undefined =
     mode ? resolveMenuThemeEffectiveMode(mode) : undefined;
 
   const base =
-    (presetId ? MENU_THEMES.find((t) => t.id === presetId) : undefined) ||
+    (presetId ? MENU_THEMES.find((t) => t.id === presetId && !t.storeOnly) : undefined) ||
     (effectiveMode === 'dark' ? MENU_THEMES[0] : MENU_THEMES[1]);
 
   const targetMode: 'dark' | 'light' = effectiveMode || base.mode;
